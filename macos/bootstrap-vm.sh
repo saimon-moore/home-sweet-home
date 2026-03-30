@@ -12,6 +12,7 @@ set -euo pipefail
 
 BASHRC="$HOME/.bashrc"
 STARSHIP_CONFIG_PATH="$HOME/.config/starship-agent.toml"
+OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
 STARSHIP_CONFIGURED=0
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATES_DIR="$SCRIPT_DIR/templates"
@@ -111,11 +112,11 @@ setup_opencode_config() {
 		exit 1
 	fi
 
-	echo "Installing OpenCode templates into home directory..."
-	cp "$TEMPLATES_DIR/AGENTS.md" "$HOME/AGENTS.md"
-	cp "$TEMPLATES_DIR/opencode.json" "$HOME/opencode.json"
-	mkdir -p "$HOME/.opencode"
-	cp -R "$TEMPLATES_DIR/dot-opencode/." "$HOME/.opencode/"
+	echo "Installing OpenCode templates into ~/.config/opencode..."
+	mkdir -p "$OPENCODE_CONFIG_DIR"
+	cp "$TEMPLATES_DIR/AGENTS.md" "$OPENCODE_CONFIG_DIR/AGENTS.md"
+	cp "$TEMPLATES_DIR/opencode.json" "$OPENCODE_CONFIG_DIR/opencode.json"
+	cp -R "$TEMPLATES_DIR/dot-opencode/." "$OPENCODE_CONFIG_DIR/"
 }
 
 setup_git() {
@@ -199,7 +200,7 @@ else
 fi
 
 echo "Open a new shell or run: source ~/.bashrc"
-echo "OpenCode config installed in home: ~/opencode.json, ~/AGENTS.md, ~/.opencode/"
+echo "OpenCode config installed in: ~/.config/opencode/"
 echo "Add this SSH public key to GitHub (Settings -> SSH and GPG keys):"
 echo "File: ${SSH_KEY_PATH}.pub"
 echo "----- BEGIN PUBLIC KEY -----"
