@@ -72,7 +72,7 @@ setup_system_dependencies() {
 	fi
 
 	echo "Installing system dependencies via dnf..."
-	run_as_root dnf install -y git ripgrep fd-find jq make gcc gcc-c++ curl openssh-clients
+	run_as_root dnf install -y git ripgrep fd-find jq make neovim gcc gcc-c++ curl openssh-clients
 }
 
 setup_mise() {

@@ -3,7 +3,7 @@
   "model": "openai/gpt-5.4",
   "small_model": "openai/gpt-5.4-mini",
   "autoupdate": "notify",
-  "share": "off",
+  "share": "disabled",
   "default_agent": "build",
   "permission": {
     "edit": "allow",
