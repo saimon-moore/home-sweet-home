@@ -21,11 +21,10 @@ mv "${ZSHRC}.tmp" "$ZSHRC"
 cat >>"$ZSHRC" <<'ALIASES'
 
 # >>> agentex aliases >>>
-alias agent-vm-shell='limactl shell dev'
-alias agent-vm-start='limactl start dev'
-alias agent-vm-stop='limactl stop dev'
-alias agent-vm-status='limactl list'
-agent-vm-bootstrap() { (cd ~/agentex/macos && ./bootstrap-vm.sh "$@"); }
+alias ,agent-vm-shell='limactl shell dev'
+alias ,agent-vm-start='limactl start dev'
+alias ,agent-vm-stop='limactl stop dev'
+alias ,agent-vm-status='limactl list'
 # <<< agentex aliases <<<
 ALIASES
 
