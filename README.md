@@ -8,7 +8,9 @@ The goal is simple: keep your host machine clean, run coding agents inside an is
 
 Currently only MacOS is supported. Pure linux setup will follow with a similar architecture.
 
-See [MACOS Instructions](/macos/opencode-lima-setup.md) for details
+See [MACOS Instructions](/macos/opencode-lima-setup.md) for details.
+
+Host sharing is off by default. If you want to edit a project on the host while the agent works on it inside the VM, run `macos/bootstrap-host.sh --shared-dir /absolute/host/path` to mount that directory inside the guest at `~/Code`.
 
 ## Repository layout
 
@@ -26,4 +28,3 @@ See [MACOS Instructions](/macos/opencode-lima-setup.md) for details
             ├── commands
             └── skills
 ```
-

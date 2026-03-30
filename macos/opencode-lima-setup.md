@@ -20,6 +20,41 @@ Why this is isolated:
 - `--mount-none` removes host directory mounts.
 - `--plain` disables Lima integration features (mounts/forwards/containerd defaults), reducing host coupling.
 
+Optional shared workspace mount:
+
+Host sharing is off by default. If you want to edit code on the macOS host while the agent works on the same tree inside the VM, `bootstrap-host.sh` can create or update the Lima instance with a writable mount at `~/Code`:
+
+```bash
+cd ~/agentex/macos
+./bootstrap-host.sh --shared-dir /Users/myuser/Code
+```
+
+If the `dev` instance does not exist yet, the script creates it with the mount already configured during `limactl start`. If it already exists, the script updates `~/.lima/dev/lima.yaml` and restarts the instance.
+
+The resulting mount looks like this inside the guest:
+
+```yaml
+mounts:
+  - location: "/Users/myuser/Code"
+    mountPoint: "/home/lima.guest/Code"
+    writable: true
+```
+
+If you prefer to configure the mount manually, restart the instance after editing `~/.lima/dev/lima.yaml`:
+
+```bash
+limactl stop dev
+limactl start dev
+```
+
+Notes:
+- With `vmType: vz`, Lima uses `virtiofs` by default for mounts on macOS.
+- When using a custom `mountPoint`, open the shell with an explicit guest working directory so Lima does not try to reuse the host path:
+
+```bash
+limactl shell --workdir /home/lima.guest dev
+```
+
 Inside the VM, the only required manual prerequisite is:
 
 ```bash
@@ -66,6 +101,8 @@ Optional host aliases (run on macOS host):
 cd ~/agentex/macos
 ./bootstrap-host.sh
 ```
+
+To enable a shared workspace during host bootstrap instead, pass `--shared-dir /absolute/host/path`.
 
 ---
 
@@ -125,7 +162,7 @@ For regular development (features, refactors), just talk in Build mode. You driv
 ## Daily Use
 
 ```bash
-limactl shell dev
+limactl shell --workdir /home/lima.guest dev
 cd ~/your-project
 opencode
 ```

@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # One-time VM bootstrap for agent development inside Lima.
-# Run this script from the cloned setup repository inside the VM.
+# Run this script from the setup repository inside the VM,
+# either from a VM-local clone or from a shared ~/Code mount.
 # Usage:
 #   ./bootstrap-vm.sh <git-email> [git-name]
 #
@@ -130,7 +131,7 @@ setup_git() {
 	git config --global user.name "$GIT_NAME"
 	git config --global init.defaultBranch main
 	git config --global pull.rebase false
-	git config --global core.editor vim
+	git config --global core.editor nvim
 }
 
 setup_ssh() {
