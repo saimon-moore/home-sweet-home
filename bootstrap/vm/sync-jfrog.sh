@@ -6,6 +6,27 @@ if ! command -v limactl >/dev/null 2>&1; then
 	exit 1
 fi
 
+url_encode() {
+	local raw="$1"
+	local encoded=""
+	local i ch byte
+
+	for ((i = 0; i < ${#raw}; i++)); do
+		ch="${raw:i:1}"
+		case "$ch" in
+		[a-zA-Z0-9.~_-])
+			encoded+="$ch"
+			;;
+		*)
+			printf -v byte '%%%02X' "'$ch"
+			encoded+="$byte"
+			;;
+		esac
+	done
+
+	printf '%s' "$encoded"
+}
+
 INSTANCE_NAME="dev"
 TARGET=""
 JFROG_HOST=""
@@ -74,55 +95,51 @@ if [[ -z "${JFROG_OIDC_USER:-}" || -z "${JFROG_OIDC_TOKEN:-}" ]]; then
 	fi
 fi
 
-TMP_PAYLOAD="$(mktemp "${TMPDIR:-/tmp}/home-sweet-home-jfrog.XXXXXX")"
+BUNDLE_USERNAME_ENCODED="$(url_encode "$JFROG_OIDC_USER")"
+BUNDLE_TOKEN_ENCODED="$(url_encode "$JFROG_OIDC_TOKEN")"
+BUNDLE_CREDENTIALS_ENCODED="$BUNDLE_USERNAME_ENCODED:$BUNDLE_TOKEN_ENCODED"
+
+TMP_REMOTE_SCRIPT="$(mktemp "${TMPDIR:-/tmp}/home-sweet-home-jfrog-sync.XXXXXX")"
 cleanup() {
-	rm -f "$TMP_PAYLOAD"
+	rm -f "$TMP_REMOTE_SCRIPT"
 }
 trap cleanup EXIT
 
 {
+	printf 'set -euo pipefail\n'
 	printf 'JFROG_OIDC_USER=%q\n' "$JFROG_OIDC_USER"
 	printf 'JFROG_OIDC_TOKEN=%q\n' "$JFROG_OIDC_TOKEN"
 	printf 'JFROG_HOST=%q\n' "$JFROG_HOST"
 	printf 'JFROG_REALM=%q\n' "$JFROG_REALM"
 	printf 'RUBY_HOST=%q\n' "$RUBY_HOST"
-} >"$TMP_PAYLOAD"
+	printf 'BUNDLE_CREDENTIALS_ENCODED=%q\n' "$BUNDLE_CREDENTIALS_ENCODED"
+	cat <<'EOF'
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+hsh_config_dir="$config_home/home-sweet-home"
+coursier_dir="$config_home/coursier"
+ivy_dir="$HOME/.ivy2"
+bundle_env_host="${RUBY_HOST//-/___}"
+bundle_env_host="${bundle_env_host//./__}"
+bundle_env_key="BUNDLE_${bundle_env_host^^}"
 
-limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu "$TARGET" bash -lc '
-	set -euo pipefail
-	source /dev/stdin
-	config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-	hsh_config_dir="$config_home/home-sweet-home"
-	coursier_dir="$config_home/coursier"
-	ivy_dir="$HOME/.ivy2"
-	bundle_env_host="${RUBY_HOST//-/___}"
-	bundle_env_host="${bundle_env_host//./__}"
-	bundle_env_key="BUNDLE_${bundle_env_host^^}"
-	bundle_credentials="${JFROG_OIDC_USER}:${JFROG_OIDC_TOKEN}"
-	install -d -m 700 "$hsh_config_dir" "$coursier_dir" "$ivy_dir"
-	cat > "$hsh_config_dir/jfrog-oidc.env" <<EOF
-export JFROG_OIDC_USER=$(printf %q "$JFROG_OIDC_USER")
-export JFROG_OIDC_TOKEN=$(printf %q "$JFROG_OIDC_TOKEN")
-export JFROG_HOST=$(printf %q "$JFROG_HOST")
-export JFROG_REALM=$(printf %q "$JFROG_REALM")
-export $bundle_env_key=$(printf %q "$bundle_credentials")
+install -d -m 700 "$hsh_config_dir" "$coursier_dir" "$ivy_dir"
+
+printf "export JFROG_OIDC_USER=%q\n" "$JFROG_OIDC_USER" > "$hsh_config_dir/jfrog-oidc.env"
+printf "export JFROG_OIDC_TOKEN=%q\n" "$JFROG_OIDC_TOKEN" >> "$hsh_config_dir/jfrog-oidc.env"
+printf "export JFROG_HOST=%q\n" "$JFROG_HOST" >> "$hsh_config_dir/jfrog-oidc.env"
+printf "export JFROG_REALM=%q\n" "$JFROG_REALM" >> "$hsh_config_dir/jfrog-oidc.env"
+printf "export %s=%q\n" "$bundle_env_key" "$BUNDLE_CREDENTIALS_ENCODED" >> "$hsh_config_dir/jfrog-oidc.env"
+chmod 600 "$hsh_config_dir/jfrog-oidc.env"
+
+printf "realm=%s\nhost=%s\nuser=%s\npassword=%s\n" "$JFROG_REALM" "$JFROG_HOST" "$JFROG_OIDC_USER" "$JFROG_OIDC_TOKEN" > "$ivy_dir/.credentials"
+chmod 600 "$ivy_dir/.credentials"
+
+printf "jfrog.username=%s\njfrog.password=%s\njfrog.host=%s\njfrog.realm=%s\n" "$JFROG_OIDC_USER" "$JFROG_OIDC_TOKEN" "$JFROG_HOST" "$JFROG_REALM" > "$coursier_dir/credentials.properties"
+chmod 600 "$coursier_dir/credentials.properties"
 EOF
-	chmod 600 "$hsh_config_dir/jfrog-oidc.env"
-	cat > "$ivy_dir/.credentials" <<EOF
-realm=$JFROG_REALM
-host=$JFROG_HOST
-user=$JFROG_OIDC_USER
-password=$JFROG_OIDC_TOKEN
-EOF
-	chmod 600 "$ivy_dir/.credentials"
-	cat > "$coursier_dir/credentials.properties" <<EOF
-jfrog.username=$JFROG_OIDC_USER
-jfrog.password=$JFROG_OIDC_TOKEN
-jfrog.host=$JFROG_HOST
-jfrog.realm=$JFROG_REALM
-EOF
-	chmod 600 "$coursier_dir/credentials.properties"
-' <"$TMP_PAYLOAD"
+} >"$TMP_REMOTE_SCRIPT"
+
+cat "$TMP_REMOTE_SCRIPT" | limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu "$TARGET" bash -s
 
 echo "Synced JFrog credentials for $TARGET on VM $INSTANCE_NAME"
 echo "Bundler host: $RUBY_HOST"
