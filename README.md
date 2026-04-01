@@ -66,9 +66,11 @@ Repos under `/workspaces` are intended to be shared between `dev` and `agent`.
 
 ## Access VM Servers From The Host
 
-Lima forwards guest localhost ports to host localhost, so you can run an app server in the VM and open it in a browser on the host.
+The VM uses `vzNAT`, so there are two supported access patterns from the host.
 
-Run the server inside the VM and bind it to `127.0.0.1` or `localhost`.
+If the server binds to `127.0.0.1` or `localhost` inside the VM, Lima forwards guest localhost ports to host localhost.
+
+If the server binds to `0.0.0.0`, open it via the VM IP instead.
 
 Examples:
 
@@ -88,11 +90,23 @@ http://localhost:3000
 http://localhost:8080
 ```
 
+```bash
+# App bound to all interfaces inside the VM
+./server --host 0.0.0.0 --port 9000
+
+# Get the VM IP from the host
+limactl shell --workdir /home/dev dev ip -4 addr show lima0
+
+# Open on the host
+http://<vm-ip>:9000
+```
+
 Notes:
 
 - Prefer binding app servers to `127.0.0.1` in the VM
-- Use the same port number on the host
-- The VM guest IP is not directly reachable from the host with the current Lima network mode
+- Use the same port number on the host for localhost-forwarded services
+- Use the VM IP for services bound to `0.0.0.0`
+- Existing VMs need a one-time `vzNAT` network update and restart to pick this up
 
 ## Sync JFrog Credentials To The VM
 

@@ -4,6 +4,8 @@ base:
   - template:fedora
 
 vmType: vz
+networks:
+  - vzNAT: true
 cpus: 4
 memory: 4GiB
 disk: 100GiB
