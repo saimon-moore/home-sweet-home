@@ -43,3 +43,12 @@ fi
 if command -v mise >/dev/null 2>&1; then
 	eval "$(mise activate zsh)"
 fi
+
+for autosuggestions_script in \
+	/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+	/usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+	if [[ -r "$autosuggestions_script" ]]; then
+		source "$autosuggestions_script"
+		break
+	fi
+done

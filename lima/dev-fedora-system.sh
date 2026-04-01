@@ -4,7 +4,7 @@ set -eux -o pipefail
 AGENT_USER="agent"
 DEV_GROUP="devvm"
 
-dnf install -y git curl sudo ca-certificates chezmoi zsh tmux ripgrep fd-find bat eza zoxide fzf jq tar unzip gzip make gcc gcc-c++ helm acl
+dnf install -y git curl sudo ca-certificates chezmoi zsh zsh-autosuggestions tmux ripgrep fd-find bat eza zoxide fzf jq tar unzip gzip make gcc gcc-c++ helm acl
 
 if ! getent group "$DEV_GROUP" >/dev/null 2>&1; then
 	groupadd -f "$DEV_GROUP"

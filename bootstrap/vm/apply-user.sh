@@ -118,16 +118,20 @@ if [[ -n "$WORK_USERNAME" ]]; then
 	APPLY_ARGS+=(--work-username "$WORK_USERNAME")
 fi
 
+limactl shell --workdir /home/dev "$INSTANCE_NAME" bash -lc "sudo rpm -q zsh-autosuggestions >/dev/null 2>&1 || sudo dnf install -y zsh-autosuggestions"
+
 printf -v REPO_PATH_Q '%q' "$REPO_PATH"
 printf -v REPO_PARENT_Q '%q' "$(dirname "$REPO_PATH")"
 printf -v REPO_URL_Q '%q' "$REPO_URL"
 printf -v APPLY_CMD '%q ' "${APPLY_ARGS[@]}"
 
 repo_status=0
-limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu dev bash -lc "if [[ -f $REPO_PATH_Q/bootstrap/apply-chezmoi.sh ]]; then exit 0; fi; if [[ -e $REPO_PATH_Q ]]; then echo 'Error: repo path exists in VM but does not look like home-sweet-home: $REPO_PATH' >&2; exit 1; fi; exit 2" || repo_status=$?
+limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu dev bash -lc "if [[ -d $REPO_PATH_Q/.git && -f $REPO_PATH_Q/bootstrap/apply-chezmoi.sh ]]; then exit 0; fi; if [[ -e $REPO_PATH_Q ]]; then echo 'Error: repo path exists in VM but does not look like a home-sweet-home git checkout: $REPO_PATH' >&2; exit 1; fi; exit 2" || repo_status=$?
 
 if [[ $repo_status -eq 2 ]]; then
 	limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu dev bash -lc "mkdir -p $REPO_PARENT_Q && git clone $REPO_URL_Q $REPO_PATH_Q && chgrp -R devvm $REPO_PATH_Q && chmod -R g+rwX $REPO_PATH_Q && find $REPO_PATH_Q -type d -exec chmod g+s {} +"
+elif [[ $repo_status -eq 0 ]]; then
+	limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu dev bash -lc "git -C $REPO_PATH_Q pull --ff-only"
 elif [[ $repo_status -ne 0 ]]; then
 	exit "$repo_status"
 fi

@@ -1,4 +1,4 @@
-export ZSH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 
 if [[ $- != *i* ]]; then
 	return
