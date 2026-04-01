@@ -9,7 +9,7 @@ fi
 INSTANCE_NAME="dev"
 TARGET=""
 JFROG_HOST=""
-JFROG_REALM=""
+JFROG_REALM="Artifactory Realm"
 RUBY_HOST=""
 
 while [[ $# -gt 0 ]]; do
@@ -35,7 +35,7 @@ while [[ $# -gt 0 ]]; do
 		shift 2
 		;;
 	-h | --help)
-		echo "Usage: bootstrap/vm/sync-jfrog.sh --target {dev|agent} --host HOST --realm REALM [--ruby-host HOST] [--vm-name NAME]"
+		echo "Usage: bootstrap/vm/sync-jfrog.sh --target {dev|agent} --host HOST [--realm REALM] [--ruby-host HOST] [--vm-name NAME]"
 		exit 0
 		;;
 	*)
@@ -50,8 +50,8 @@ if [[ "$TARGET" != "dev" && "$TARGET" != "agent" ]]; then
 	exit 1
 fi
 
-if [[ -z "$JFROG_HOST" || -z "$JFROG_REALM" ]]; then
-	echo "Error: --host and --realm are required." >&2
+if [[ -z "$JFROG_HOST" ]]; then
+	echo "Error: --host is required." >&2
 	exit 1
 fi
 

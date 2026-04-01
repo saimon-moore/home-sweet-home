@@ -104,9 +104,11 @@ Sync credentials for a VM user with:
 
 ```bash
 ,jfrog_oidc_env
-./bootstrap/vm/sync-jfrog.sh --target dev --host your.jfrog.example.com --realm "Your JFrog Realm"
-./bootstrap/vm/sync-jfrog.sh --target agent --host your.jfrog.example.com --realm "Your JFrog Realm"
+./bootstrap/vm/sync-jfrog.sh --target dev --host your.jfrog.example.com
+./bootstrap/vm/sync-jfrog.sh --target agent --host your.jfrog.example.com
 ```
+
+The default realm is `Artifactory Realm`. If your setup differs, pass `--realm` explicitly.
 
 If Ruby gems use a different host than Scala/sbt, pass `--ruby-host` too.
 
