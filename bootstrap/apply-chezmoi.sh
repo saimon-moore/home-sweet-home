@@ -145,13 +145,17 @@ if [[ "$DEST_DIR" == "$HOME" && -f "$HOME/.config/mise/config.toml" ]] && comman
 	)
 fi
 
-if [[ "$DEST_DIR" == "$HOME" && "$TARGET" == "dev" && "$CONTEXT" == "work" ]] && command -v mise >/dev/null 2>&1; then
+if [[ "$DEST_DIR" == "$HOME" && "$CONTEXT" == "work" && "$TARGET" != "host" ]] && command -v mise >/dev/null 2>&1; then
 	(
 		cd "$HOME"
-		if mise exec -- sh -lc 'command -v helm_ls >/dev/null 2>&1' && [[ ! -e "$HOME/.local/bin/helm-ls" ]]; then
+		if [[ "$TARGET" == "dev" ]] && mise exec -- sh -lc 'command -v helm_ls >/dev/null 2>&1' && [[ ! -e "$HOME/.local/bin/helm-ls" ]]; then
 			mkdir -p "$HOME/.local/bin"
 			ln -s "$(mise exec -- sh -lc 'command -v helm_ls')" "$HOME/.local/bin/helm-ls"
 		fi
-		COURSIER_INSTALL_DIR="$HOME/.local/bin" mise exec -- cs install --install-dir "$HOME/.local/bin" metals
+		if [[ "$TARGET" == "dev" ]]; then
+			COURSIER_INSTALL_DIR="$HOME/.local/bin" mise exec -- cs install --install-dir "$HOME/.local/bin" metals sbt
+		else
+			COURSIER_INSTALL_DIR="$HOME/.local/bin" mise exec -- cs install --install-dir "$HOME/.local/bin" sbt
+		fi
 	)
 fi

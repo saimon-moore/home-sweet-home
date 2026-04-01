@@ -23,10 +23,14 @@ yq = "latest"
 "npm:dockerfile-language-server-nodejs" = "latest"
 "npm:@microsoft/compose-language-service" = "latest"
 {{- end }}
-{{- if and (eq .target "dev") (eq .context "work") }}
+{{- if and (ne .target "host") (eq .context "work") }}
 java = "temurin-21"
+{{- end }}
+{{- if and (eq .target "dev") (eq .context "work") }}
 helm-ls = "latest"
 "github:scalameta/scalafmt" = "latest"
+{{- end }}
+{{- if and (ne .target "host") (eq .context "work") }}
 [tools."github:coursier/coursier"]
 version = "latest"
 asset_pattern = "coursier"
