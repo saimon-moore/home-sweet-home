@@ -12,6 +12,8 @@ NAME=""
 EMAIL=""
 GITHUB_USERNAME=""
 WORK_USERNAME=""
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+CONFIG_FILE=""
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
 STATE_FILE=""
 
@@ -45,12 +47,16 @@ while [[ $# -gt 0 ]]; do
 		WORK_USERNAME="$2"
 		shift 2
 		;;
+	--config-file)
+		CONFIG_FILE="$2"
+		shift 2
+		;;
 	--state-file)
 		STATE_FILE="$2"
 		shift 2
 		;;
 	-h | --help)
-		echo "Usage: bootstrap/apply-chezmoi.sh --target {host|dev|agent} --context {work|private} [--destination DIR] [--name NAME] [--email EMAIL] [--github-username USERNAME] [--work-username USERNAME] [--state-file FILE]"
+		echo "Usage: bootstrap/apply-chezmoi.sh --target {host|dev|agent} --context {work|private} [--destination DIR] [--name NAME] [--email EMAIL] [--github-username USERNAME] [--work-username USERNAME] [--config-file FILE] [--state-file FILE]"
 		exit 0
 		;;
 	*)
@@ -75,51 +81,57 @@ if [[ ! -f "$CONFIG_TEMPLATE" ]]; then
 	exit 1
 fi
 
+if [[ -z "$CONFIG_FILE" ]]; then
+	CONFIG_FILE="$CONFIG_DIR/home-sweet-home-$TARGET-$CONTEXT.toml"
+fi
+
 if [[ -z "$STATE_FILE" ]]; then
 	STATE_FILE="$STATE_DIR/chezmoistate.boltdb"
 fi
 
-mkdir -p "$(dirname "$STATE_FILE")"
+mkdir -p "$(dirname "$CONFIG_FILE")" "$(dirname "$STATE_FILE")"
 
-TMP_CONFIG_BASE="$(mktemp "${TMPDIR:-/tmp}/home-sweet-home-chezmoi-config.XXXXXX")"
-TMP_CONFIG="$TMP_CONFIG_BASE.toml"
-mv "$TMP_CONFIG_BASE" "$TMP_CONFIG"
-cleanup() {
-	rm -f "$TMP_CONFIG"
-}
-trap cleanup EXIT
-
-EXECUTE_TEMPLATE_ARGS=(
-	execute-template
-	--init
-	--file
-	--persistent-state "$STATE_FILE"
+INIT_ARGS=(
+	init
+	--source "$SOURCE_DIR"
+	--config-path "$CONFIG_FILE"
+	--destination "$DEST_DIR"
 	--promptString "Target=$TARGET"
 	--promptString "Context=$CONTEXT"
 )
 
 if [[ -n "$NAME" ]]; then
-	EXECUTE_TEMPLATE_ARGS+=(--promptString "Git author name=$NAME")
+	INIT_ARGS+=(--promptString "Git author name=$NAME")
 fi
 
 if [[ -n "$EMAIL" ]]; then
-	EXECUTE_TEMPLATE_ARGS+=(--promptString "Git author email=$EMAIL")
+	INIT_ARGS+=(--promptString "Git author email=$EMAIL")
 fi
 
 if [[ -n "$GITHUB_USERNAME" ]]; then
-	EXECUTE_TEMPLATE_ARGS+=(--promptString "GitHub username=$GITHUB_USERNAME")
+	INIT_ARGS+=(--promptString "GitHub username=$GITHUB_USERNAME")
 fi
 
 if [[ "$CONTEXT" == "work" && -n "$WORK_USERNAME" ]]; then
-	EXECUTE_TEMPLATE_ARGS+=(--promptString "Work username=$WORK_USERNAME")
+	INIT_ARGS+=(--promptString "Work username=$WORK_USERNAME")
 fi
 
-chezmoi "${EXECUTE_TEMPLATE_ARGS[@]}" "$CONFIG_TEMPLATE" >"$TMP_CONFIG"
+if [[ ! -f "$CONFIG_FILE" ]] ||
+	grep -Fq 'target = "Target"' "$CONFIG_FILE" ||
+	grep -Fq 'context = "Context"' "$CONFIG_FILE" ||
+	grep -Fq 'name = "Git author name"' "$CONFIG_FILE" ||
+	grep -Fq 'email = "Git author email"' "$CONFIG_FILE" ||
+	grep -Fq 'github_username = "GitHub username"' "$CONFIG_FILE" ||
+	grep -Fq 'work_username = "Work username"' "$CONFIG_FILE"; then
+	chezmoi "${INIT_ARGS[@]}"
+fi
 
-printf '\n[warnings]\nconfigFileTemplateHasChanged = false\n' >>"$TMP_CONFIG"
+if ! grep -Fq 'configFileTemplateHasChanged = false' "$CONFIG_FILE"; then
+	printf '\n[warnings]\nconfigFileTemplateHasChanged = false\n' >>"$CONFIG_FILE"
+fi
 
 chezmoi \
-	--config "$TMP_CONFIG" \
+	--config "$CONFIG_FILE" \
 	--destination "$DEST_DIR" \
 	--persistent-state "$STATE_FILE" \
 	--source "$SOURCE_DIR" \
