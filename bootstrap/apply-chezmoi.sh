@@ -15,32 +15,6 @@ WORK_USERNAME=""
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
 STATE_FILE=""
 
-prompt_required() {
-	local current_value="$1"
-	local label="$2"
-	local result_var="$3"
-	local value="$current_value"
-
-	if [[ -z "$value" ]]; then
-		if [[ -t 0 ]]; then
-			read -r -p "$label: " value
-		elif { exec 3</dev/tty; } 2>/dev/null; then
-			read -r -u 3 -p "$label: " value
-			exec 3<&-
-		else
-			echo "Error: missing required value for '$label' and no interactive terminal is available." >&2
-			exit 1
-		fi
-
-		if [[ -z "$value" ]]; then
-			echo "Error: '$label' cannot be empty." >&2
-			exit 1
-		fi
-	fi
-
-	printf -v "$result_var" '%s' "$value"
-}
-
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--target)
@@ -105,14 +79,6 @@ if [[ -z "$STATE_FILE" ]]; then
 	STATE_FILE="$STATE_DIR/chezmoistate.boltdb"
 fi
 
-prompt_required "$NAME" "Git author name" NAME
-prompt_required "$EMAIL" "Git author email" EMAIL
-prompt_required "$GITHUB_USERNAME" "GitHub username" GITHUB_USERNAME
-
-if [[ "$CONTEXT" == "work" ]]; then
-	prompt_required "$WORK_USERNAME" "Work username" WORK_USERNAME
-fi
-
 mkdir -p "$(dirname "$STATE_FILE")"
 
 TMP_CONFIG_BASE="$(mktemp "${TMPDIR:-/tmp}/home-sweet-home-chezmoi-config.XXXXXX")"
@@ -123,11 +89,32 @@ cleanup() {
 }
 trap cleanup EXIT
 
-chezmoi execute-template \
-	--init \
-	--file \
-	--promptString "Target=$TARGET,Context=$CONTEXT,Git author name=$NAME,Git author email=$EMAIL,GitHub username=$GITHUB_USERNAME,Work username=$WORK_USERNAME" \
-	"$CONFIG_TEMPLATE" >"$TMP_CONFIG"
+EXECUTE_TEMPLATE_ARGS=(
+	execute-template
+	--init
+	--file
+	--persistent-state "$STATE_FILE"
+	--promptString "Target=$TARGET"
+	--promptString "Context=$CONTEXT"
+)
+
+if [[ -n "$NAME" ]]; then
+	EXECUTE_TEMPLATE_ARGS+=(--promptString "Git author name=$NAME")
+fi
+
+if [[ -n "$EMAIL" ]]; then
+	EXECUTE_TEMPLATE_ARGS+=(--promptString "Git author email=$EMAIL")
+fi
+
+if [[ -n "$GITHUB_USERNAME" ]]; then
+	EXECUTE_TEMPLATE_ARGS+=(--promptString "GitHub username=$GITHUB_USERNAME")
+fi
+
+if [[ "$CONTEXT" == "work" && -n "$WORK_USERNAME" ]]; then
+	EXECUTE_TEMPLATE_ARGS+=(--promptString "Work username=$WORK_USERNAME")
+fi
+
+chezmoi "${EXECUTE_TEMPLATE_ARGS[@]}" "$CONFIG_TEMPLATE" >"$TMP_CONFIG"
 
 printf '\n[warnings]\nconfigFileTemplateHasChanged = false\n' >>"$TMP_CONFIG"
 
