@@ -138,4 +138,6 @@ elif [[ $repo_status -ne 0 ]]; then
 	exit "$repo_status"
 fi
 
+limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu dev bash -lc 'origin_url="$(git -C '"$REPO_PATH_Q"' remote get-url origin 2>/dev/null || true)"; case "$origin_url" in https://github.com/*) git -C '"$REPO_PATH_Q"' remote set-url origin "git@github.com:${origin_url#https://github.com/}" ;; https://source.xing.com/*) git -C '"$REPO_PATH_Q"' remote set-url origin "git@source.xing.com:${origin_url#https://source.xing.com/}" ;; esac'
+
 exec limactl shell --workdir /home/dev "$INSTANCE_NAME" sudo -iu "$TARGET" bash -lc "cd $REPO_PATH_Q; $APPLY_CMD"

@@ -3,6 +3,8 @@
 	email = {{ .email | quote }}
 {{- if and (eq .target "host") (eq .context "work") }}
 	signingkey = ~/.ssh/id_rsa.pub
+{{- else if ne .target "host" }}
+	signingkey = ~/.ssh/id_ed25519.pub
 {{- end }}
 
 [alias]
@@ -30,6 +32,19 @@
 
 [credential]
 	helper = osxkeychain
+
+{{- else if ne .target "host" }}
+[commit]
+	gpgsign = true
+
+[gpg]
+	format = ssh
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+
+[url "git@source.xing.com:"]
+	insteadOf = https://source.xing.com/
 
 {{- end }}
 
