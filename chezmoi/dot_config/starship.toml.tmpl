@@ -1,0 +1,9 @@
+{{- if eq .target "host" }}
+format = "$directory$git_branch$git_status$line_break$character"
+{{- else }}
+format = "[ VM {{ .target }} ](bold black bg:yellow)$directory$git_branch$git_status$line_break$character"
+{{- end }}
+
+[character]
+ success_symbol = "[>](bold green)"
+ error_symbol = "[>](bold red)"
