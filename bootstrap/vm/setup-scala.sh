@@ -26,7 +26,16 @@ install_coursier_wrapper() {
 	cat >"$wrapper_path" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-exec java -jar "$HOME/.local/share/coursier/coursier.jar" "$@"
+if command -v java >/dev/null 2>&1; then
+	exec java -jar "$HOME/.local/share/coursier/coursier.jar" "$@"
+fi
+
+if command -v mise >/dev/null 2>&1; then
+	exec mise exec -- java -jar "$HOME/.local/share/coursier/coursier.jar" "$@"
+fi
+
+echo "Error: java is required to run coursier." >&2
+exit 1
 EOF
 	chmod 755 "$wrapper_path"
 }
