@@ -1,4 +1,4 @@
-{{- if ne .target "host" }}
+{{- if or .develop .needs_opencode }}
 Host github.com
 	User git
 	IdentityFile ~/.ssh/id_ed25519

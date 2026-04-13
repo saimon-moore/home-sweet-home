@@ -1,4 +1,3 @@
-develop = {{ if or (eq .develop true) (eq .target "dev") }}true{{ else }}false{{ end }}
-needs_opencode = {{ if or (eq .needs_opencode true) (eq .target "agent") }}true{{ else }}false{{ end }}
-target = {{ .target | quote }}
-context = {{ .context | quote }}
+develop = {{ .develop }}
+needs_opencode = {{ .needs_opencode }}
+work = {{ if ne .work_username "" }}true{{ else }}false{{ end }}

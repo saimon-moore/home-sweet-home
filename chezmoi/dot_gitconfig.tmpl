@@ -1,9 +1,11 @@
+{{- $host := and (not .develop) (not .needs_opencode) -}}
+{{- $work := ne .work_username "" -}}
 [user]
 	name = {{ .name | quote }}
 	email = {{ .email | quote }}
-{{- if and (eq .target "host") (eq .context "work") }}
+{{- if and $host $work }}
 	signingkey = ~/.ssh/id_rsa.pub
-{{- else if ne .target "host" }}
+{{- else if not $host }}
 	signingkey = ~/.ssh/id_ed25519.pub
 {{- end }}
 
@@ -20,7 +22,7 @@
 [core]
 	excludesfile = ~/.gitignore
 
-{{- if and (eq .target "host") (eq .context "work") }}
+{{- if and $host $work }}
 [commit]
 	gpgsign = true
 
@@ -33,7 +35,7 @@
 [credential]
 	helper = osxkeychain
 
-{{- else if ne .target "host" }}
+{{- else if not $host }}
 [commit]
 	gpgsign = true
 
@@ -48,7 +50,7 @@
 
 {{- end }}
 
-{{- if and (eq .context "work") (ne .work_username "") }}
+{{- if $work }}
 [credential "https://source.xing.com"]
 	username = {{ .work_username | quote }}
 {{- end }}

@@ -1,4 +1,5 @@
-{{- if eq .context "work" }}
+{{- $host := and (not .develop) (not .needs_opencode) -}}
+{{- if ne .work_username "" }}
 if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/home-sweet-home/jfrog-oidc.env" ]]; then
 	source "${XDG_CONFIG_HOME:-$HOME/.config}/home-sweet-home/jfrog-oidc.env"
 fi
@@ -11,7 +12,7 @@ if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/coursier/credentials.properties" ]];
 	export COURSIER_CREDENTIALS="${XDG_CONFIG_HOME:-$HOME/.config}/coursier/credentials.properties"
 fi
 
-{{- if eq .target "host" }}
+{{- if $host }}
 ,jfrog_oidc_env() {
 	echo "Exporting jfrog credentials from 1Password"
 	export JFROG_OIDC_USER="$(op read "op://Private/JFROG_OIDC/username")"

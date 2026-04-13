@@ -1,14 +1,15 @@
-{{- if eq .target "host" }}
+{{- $host := and (not .develop) (not .needs_opencode) -}}
+{{- if $host }}
 format = "$directory$git_branch$git_status$line_break$character"
 {{- else }}
 format = "[VM](bold black bg:yellow)$directory$git_branch$git_status$line_break$character"
 {{- end }}
 
 [character]
-{{- if eq .target "host" }}
+{{- if $host }}
  success_symbol = "[>](bold green)"
  error_symbol = "[>](bold red)"
 {{- else }}
- success_symbol = "[{{ .target }}>](bold yellow)"
- error_symbol = "[{{ .target }}!](bold red)"
+ success_symbol = "[{{ if and .develop .needs_opencode }}dev+agent{{ else if .develop }}dev{{ else }}agent{{ end }}>](bold yellow)"
+ error_symbol = "[{{ if and .develop .needs_opencode }}dev+agent{{ else if .develop }}dev{{ else }}agent{{ end }}!](bold red)"
 {{- end }}

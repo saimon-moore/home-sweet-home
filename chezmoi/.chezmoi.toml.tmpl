@@ -6,8 +6,6 @@
 [data]
 develop = {{ $develop }}
 needs_opencode = {{ $needsOpencode }}
-target = {{ if $develop }}"dev"{{ else if $needsOpencode }}"agent"{{ else }}"host"{{ end }}
-context = {{ if ne $workUsername "" }}"work"{{ else }}"private"{{ end }}
 name = {{ promptStringOnce . "name" "Git author name" | quote }}
 email = {{ promptStringOnce . "email" "Git author email" | quote }}
 github_username = {{ promptStringOnce . "github_username" "GitHub username" | quote }}

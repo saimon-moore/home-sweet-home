@@ -9,10 +9,9 @@ Dotfiles for my host plus an isolated Fedora VM for development and agent work.
 
 #### Host
 
+Install Homebrew first. `chezmoi` will run `brew bundle` once on the macOS host.
+
 ```bash
-git clone https://github.com/david-krentzlin/home-sweet-home.git
-cd home-sweet-home
-brew bundle --file bootstrap/host/Brewfile.work
 chezmoi init --apply david-krentzlin/home-sweet-home
 ,create-vm
 ```
@@ -27,6 +26,8 @@ When `chezmoi` prompts on the host, answer:
 
 ```bash
 limactl shell --workdir /home/dev dev sudo -iu dev
+# or
+,dev
 ```
 
 Run inside the VM as `dev`:
@@ -48,6 +49,8 @@ When `chezmoi` prompts as `dev`, answer:
 
 ```bash
 limactl shell --workdir /home/agent dev sudo -iu agent
+# or
+,agent
 ```
 
 Run inside the VM as `agent`:
@@ -95,7 +98,7 @@ Use `david-krentzlin/home-sweet-home` with `chezmoi init`. Username-only shortha
 - Open a VM-hosted service in the browser with `,vm-open 9000`
 - Create the VM from the host with `,create-vm`
 - Keep shared repos under `/workspaces` on the vm
-- Update the host repo checkout when you want newer VM helper scripts or docs
+- Run `chezmoi update` on the host to pull helper and dotfile changes
 - Run `chezmoi update` as `dev` or `agent` in the VM to pull and apply dotfile changes
 - Apply as `dev` first, then as `agent`, if you update both VM users
 

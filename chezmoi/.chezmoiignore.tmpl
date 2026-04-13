@@ -1,4 +1,6 @@
-{{- if ne .target "host" }}
+{{- $host := and (not .develop) (not .needs_opencode) -}}
+{{- $work := ne .work_username "" -}}
+{{- if not $host }}
 .local/bin/,dev
 .local/bin/,agent
 .local/bin/,create-vm
@@ -10,21 +12,21 @@
 .config/zsh/rc.d/05_homebrew
 .config/zsh/rc.d/10_java
 {{- end }}
-{{- if eq .target "host" }}
+{{- if $host }}
 .ssh/config
 .npmrc
 .yarnrc
 .yarnrc.yml
 {{- end }}
-{{- if eq .context "private" }}
+{{- if not $work }}
 .config/zsh/rc.d/05_homebrew
 .config/zsh/rc.d/10_java
 .config/zsh/rc.d/20_jfrog
 {{- end }}
-{{- if not (or (eq .needs_opencode true) (eq .target "agent")) }}
+{{- if not .needs_opencode }}
 .config/opencode
 .config/opencode/**
 {{- end }}
-{{- if and (or (eq .needs_opencode true) (eq .target "agent")) (not (or (eq .develop true) (eq .target "dev"))) }}
+{{- if and .needs_opencode (not .develop) }}
 .config/zsh/rc.d/30_nvim
 {{- end }}

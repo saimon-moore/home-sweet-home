@@ -1,0 +1,20 @@
+{{- if and (eq .chezmoi.os "darwin") (ne .work_username "") (not .develop) (not .needs_opencode) }}
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v brew >/dev/null 2>&1; then
+	echo "Error: Homebrew is required on the macOS host before running chezmoi." >&2
+	exit 1
+fi
+
+for brewfile in \
+	{{ joinPath .chezmoi.sourceDir ".." "bootstrap" "host" "Brewfile.work" | quote }} \
+	{{ joinPath .chezmoi.sourceDir "bootstrap" "host" "Brewfile.work" | quote }}; do
+	if [[ -f "$brewfile" ]]; then
+		exec brew bundle --file "$brewfile"
+	fi
+done
+
+echo "Error: could not locate bootstrap/host/Brewfile.work from chezmoi source path {{ .chezmoi.sourceDir }}." >&2
+exit 1
+{{- end }}

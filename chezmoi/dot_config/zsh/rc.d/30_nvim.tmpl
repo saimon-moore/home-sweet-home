@@ -1,1 +1,1 @@
-export MYNVIM_ENV={{ .context | quote }}
+export MYNVIM_ENV={{ if ne .work_username "" }}"work"{{ else }}"private"{{ end }}
