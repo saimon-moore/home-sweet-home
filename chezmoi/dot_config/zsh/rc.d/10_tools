@@ -15,7 +15,7 @@ if command -v bat >/dev/null 2>&1; then
 	alias less=bat
 fi
 
-if command -v podman >/dev/null 2>&1 && [[ "$(uname -s)" == "Linux" ]]; then
+if command -v podman >/dev/null 2>&1; then
 	alias docker=podman
 fi
 
