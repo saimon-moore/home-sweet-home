@@ -31,7 +31,10 @@ if command -v java >/dev/null 2>&1; then
 fi
 
 if command -v mise >/dev/null 2>&1; then
-	exec mise exec -- java -jar "$HOME/.local/share/coursier/coursier.jar" "$@"
+	java_home="$(mise where java 2>/dev/null || true)"
+	if [[ -n "$java_home" && -x "$java_home/bin/java" ]]; then
+		exec "$java_home/bin/java" -jar "$HOME/.local/share/coursier/coursier.jar" "$@"
+	fi
 fi
 
 echo "Error: java is required to run coursier." >&2
@@ -60,6 +63,18 @@ ensure_coursier() {
 	return 1
 }
 
+ensure_mise_tool_active() {
+	local tool="$1"
+	local version="$2"
+
+	if mise where "$tool" >/dev/null 2>&1; then
+		return 0
+	fi
+
+	echo "Activating $tool in the global mise config"
+	mise use -g "$tool@$version"
+}
+
 if ! command -v mise >/dev/null 2>&1; then
 	echo "Error: mise is required but was not found on PATH. Run ,chezmoi-init first." >&2
 	exit 1
@@ -85,13 +100,16 @@ else
 	echo "Warning: $sbt_credentials is missing. Sync JFrog credentials first with ,sync-jfrog-to-vm if sbt or metals resolution fails." >&2
 fi
 
+ensure_mise_tool_active java temurin-21
+ensure_mise_tool_active github:scalameta/scalafmt latest
+
 echo "Ensuring current mise config is trusted and installed"
 mise trust "$HOME/.config/mise/config.toml"
 mise install
 
 if ! ensure_coursier; then
-	echo "coursier (cs) is not available from the current mise config; installing Scala prerequisites explicitly"
-	mise install java "github:scalameta/scalafmt"
+	echo "coursier (cs) is not available from the current mise config; repairing coursier wrapper"
+	install_coursier_wrapper
 fi
 
 if ! ensure_coursier; then
