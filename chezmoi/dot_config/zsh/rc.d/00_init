@@ -28,3 +28,9 @@ fi
 
 export COLORTERM=truecolor
 PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+if [[ -n "${GOBIN:-}" ]]; then
+	PATH="$GOBIN:$PATH"
+else
+	PATH="${GOPATH:-$HOME/go}/bin:$PATH"
+fi
