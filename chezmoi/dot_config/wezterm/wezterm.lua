@@ -72,6 +72,20 @@ local function command_or_shell(command, fallback_command, label)
   }
 end
 
+local function split_into_dev()
+  return act.SplitPane {
+    direction = "Right",
+    size = { Percent = 50 },
+    command = {
+      args = {
+        "zsh",
+        "-lic",
+        "if command -v ,dev >/dev/null 2>&1; then exec ,dev; else echo ',dev not found on PATH'; exec zsh -l; fi",
+      },
+    },
+  }
+end
+
 local function project_workspace_picker(window, pane)
   local query_command = "zoxide query -l"
   if project_picker_base_dir then
@@ -371,8 +385,7 @@ config.keys = {
   { key = "J", mods = "ALT|SHIFT",    action = act.AdjustPaneSize { "Down", 5 } },
   { key = "K", mods = "ALT|SHIFT",    action = act.AdjustPaneSize { "Up", 5 } },
   { key = "L", mods = "ALT|SHIFT",    action = act.AdjustPaneSize { "Right", 5 } },
-  { key = "v", mods = "LEADER",       action = act.SplitPane { direction = "Right", size = { Percent = 50 } } },
-  { key = "h", mods = "LEADER",       action = act.SplitPane { direction = "Down", size = { Percent = 50 } } },
+  { key = "d", mods = "LEADER",       action = split_into_dev() },
   {
     key = "n",
     mods = "LEADER",

@@ -93,6 +93,23 @@ Every machine also gets:
 
 Use `david-krentzlin/home-sweet-home` with `chezmoi init`. Username-only shorthand resolves to `david-krentzlin/dotfiles`, which is not this repo.
 
+## OpenCode Browser Auth In The VM
+
+OpenCode browser auth currently redirects back to `localhost` on the machine that started `opencode`.
+
+When `opencode` runs in the VM, the final browser redirect therefore fails on the host. The working flow is:
+
+1. Run `/connect` inside `opencode` in the VM.
+2. Complete the browser login on the host.
+3. When the browser lands on the failing `http://localhost:...` callback URL, copy that full URL.
+4. Back in the VM, call it manually:
+
+```bash
+curl '<paste-the-final-localhost-url-here>'
+```
+
+That delivers the auth callback to the OpenCode process running inside the VM.
+
 ## What you get
 
 * Managed dotfiles for your host machine
@@ -112,6 +129,7 @@ Use `david-krentzlin/home-sweet-home` with `chezmoi init`. Username-only shortha
 - Pull and apply host changes with `,chezmoi-update`
 - Pull and apply VM changes with `,chezmoi-update` as `dev` or `agent`, including `mynvim` when enabled
 - Apply as `dev` first, then as `agent`, if you update both VM users
+- For OpenCode browser auth in the VM, finish login on the host and `curl` the final localhost callback URL from inside the VM
 
 ## Access VM Servers From The Host
 
