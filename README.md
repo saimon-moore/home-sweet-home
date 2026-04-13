@@ -86,6 +86,8 @@ Repos under `/workspaces` are intended to be shared between `dev` and `agent`.
 
 If `Will you need Neovim on this machine?` is `yes`, `chezmoi` also keeps a shallow clone of `https://github.com/david-krentzlin/mynvim` at `~/.config/nvim`.
 
+Every machine also gets a `,chezmoi` helper that runs `chezmoi apply`.
+
 Use `david-krentzlin/home-sweet-home` with `chezmoi init`. Username-only shorthand resolves to `david-krentzlin/dotfiles`, which is not this repo.
 
 ## What you get
@@ -99,11 +101,12 @@ Use `david-krentzlin/home-sweet-home` with `chezmoi init`. Username-only shortha
 
 - Open the dev shell with `,dev`
 - Open the agent shell with `,agent`
+- Re-apply the current machine config with `,chezmoi`
 - Show the VM IP with `,vm-ip`
 - Open a VM-hosted service in the browser with `,vm-open 9000`
 - Create the VM from the host with `,create-vm`
 - Keep shared repos under `/workspaces` on the vm
-- Run `chezmoi update` on the host to pull helper and dotfile changes
+- Run `chezmoi update` on the host to pull helper and dotfile changes, then `,chezmoi`
 - Run `chezmoi update` as `dev` or `agent` in the VM to pull and apply dotfile changes, including `mynvim` when enabled
 - Apply as `dev` first, then as `agent`, if you update both VM users
 
