@@ -8,31 +8,14 @@ if ! command -v cargo >/dev/null 2>&1; then
 	exit 0
 fi
 
-if ! command -v git >/dev/null 2>&1; then
-	echo "Error: git is required to build Helix from source." >&2
-	exit 1
-fi
+for candidate in \
+	{{ joinPath .chezmoi.sourceDir ".." "bootstrap" "host" "helix-install.sh" | quote }} \
+	{{ joinPath .chezmoi.sourceDir "bootstrap" "host" "helix-install.sh" | quote }}; do
+	if [[ -f "$candidate" ]]; then
+		exec bash "$candidate" --install-only
+	fi
+done
 
-helix_source_dir="${XDG_DATA_HOME:-$HOME/.local/share}/src/helix"
-helix_config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/helix"
-helix_runtime_link="$helix_config_dir/runtime"
-
-mkdir -p "$(dirname "$helix_source_dir")" "$helix_config_dir"
-
-if [[ ! -d "$helix_source_dir/.git" ]]; then
-	git clone --depth 1 https://github.com/helix-editor/helix "$helix_source_dir"
-fi
-
-if ! command -v hx >/dev/null 2>&1; then
-	(
-		cd "$helix_source_dir"
-		cargo install --path helix-term --locked --root "$HOME/.local"
-	)
-fi
-
-if [[ -L "$helix_runtime_link" || ! -e "$helix_runtime_link" ]]; then
-	ln -sfn "$helix_source_dir/runtime" "$helix_runtime_link"
-else
-	echo "Warning: leaving existing Helix runtime at $helix_runtime_link in place" >&2
-fi
+echo "Error: could not locate bootstrap/host/helix-install.sh from chezmoi source path {{ .chezmoi.sourceDir }}." >&2
+exit 1
 {{- end }}

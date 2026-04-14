@@ -209,4 +209,6 @@ On development machines, `mise install` also pulls the editor-side tools managed
 
 If you opt into source-built Helix in the chezmoi prompts, Helix is built from the official repository on both Linux and macOS after Rust is available, so run `chezmoi apply` once after `mise install` during bootstrap.
 
+You can manually install or update that source build later with `,helix-install`.
+
 Theme assets for Yazi and Scooter are managed directly in this repo.
