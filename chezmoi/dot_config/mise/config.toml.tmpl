@@ -24,6 +24,7 @@ tree-sitter="latest"
 {{- if .develop }}
 bun = "latest"
 go = "latest"
+ruby = "latest"
 node = "lts"
 {{- if $buildHelixFromSource }}
 rust = "stable"
@@ -31,6 +32,7 @@ rust = "stable"
 shfmt = "latest"
 yq = "latest"
 "github:max-sixty/worktrunk" = { version = "latest", bin = "wt" }
+"github:dprint/dprint" = "latest"
 helm-ls = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
 "go:mvdan.cc/gofumpt" = "latest"
@@ -39,7 +41,8 @@ helm-ls = "latest"
 "github:jesseduffield/lazygit" = "latest"
 "github:zellij-org/zellij" = "latest"
 "github:golangci/golangci-lint" = "latest"
-"gem:rufo" = "latest"
+"gem:ruby-lsp" = { version = "latest", depends = ["ruby"] }
+"gem:rufo" = { version = "latest", depends = ["ruby"] }
 "npm:@olrtg/emmet-language-server" = { version = "latest", bin = "emmet-ls" }
 "npm:prettier" = "latest"
 "npm:yaml-language-server" = "latest"
