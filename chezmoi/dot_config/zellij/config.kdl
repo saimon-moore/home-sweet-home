@@ -2,7 +2,7 @@
 
 theme "catppuccin-mocha"
 
-simplified_ui true
+simplified_ui false
 pane_frames false
 default_mode "locked"
 default_layout "default"
