@@ -29,6 +29,28 @@ keybinds {
             }
             SwitchToMode "Locked"
         }
+        bind "Alt e" {
+            Run "yazi" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+            SwitchToMode "Locked"
+        }
+        bind "Alt r" {
+            Run "scooter" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+            SwitchToMode "Locked"
+        }
         bind "Alt x" { CloseFocus; SwitchToMode "Locked"; }
         bind "Alt q" { CloseTab; SwitchToMode "Locked"; }
         bind "Alt z" { ToggleFocusFullscreen; SwitchToMode "Locked"; }
@@ -56,6 +78,26 @@ keybinds {
         bind "Alt a" { SwitchToMode "Normal"; }
         bind "Alt g" {
             Run "lazygit" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt e" {
+            Run "yazi" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt r" {
+            Run "scooter" {
                 floating true
                 x "7%"
                 y "7%"
