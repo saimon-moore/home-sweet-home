@@ -7,10 +7,10 @@ exit = true
 [preview]
 syntax_highlighting = true
 syntax_highlighting_theme = "Catppuccin Mocha"
+wrap_text = false
 
 [style]
 true_color = true
-wrap_text = false
 
 [search]
 disable_prepopulated_fields = false
