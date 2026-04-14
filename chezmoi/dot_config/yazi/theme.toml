@@ -1,5 +1,5 @@
 [flavor]
 dark = "catppuccin-mocha"
 
-# Add local overrides below when you want to tune the flavor,
-# for example a pure black background later on.
+[app]
+overall = { bg = "#000000" }

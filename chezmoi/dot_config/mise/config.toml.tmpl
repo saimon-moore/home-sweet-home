@@ -1,5 +1,7 @@
 {{- $needsNeovim := .develop -}}
 {{- if hasKey . "needs_neovim" }}{{- $needsNeovim = .needs_neovim }}{{- end }}
+{{- $buildHelixFromSource := false -}}
+{{- if hasKey . "build_helix_from_source" }}{{- $buildHelixFromSource = .build_helix_from_source }}{{- end }}
 
 [settings]
 experimental = true
@@ -23,6 +25,9 @@ tree-sitter="latest"
 bun = "latest"
 go = "latest"
 node = "lts"
+{{- if $buildHelixFromSource }}
+rust = "stable"
+{{- end }}
 shfmt = "latest"
 yq = "latest"
 "github:max-sixty/worktrunk" = { version = "latest", bin = "wt" }

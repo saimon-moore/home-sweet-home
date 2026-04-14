@@ -39,6 +39,7 @@ chmod 700 "$HOME/.ssh"
 ssh-keygen -q -t ed25519 -N '' -C "dev@dev" -f "$HOME/.ssh/id_ed25519"
 chezmoi init --apply david-krentzlin/home-sweet-home
 mise install
+chezmoi apply
 ```
 
 This also installs the terminal IDE support managed here for Helix, Zellij, Lazygit, Yazi, and related editor tooling.
@@ -48,6 +49,7 @@ When `chezmoi` prompts as `dev`, answer:
 - `Will you develop on this machine?` -> `yes`
 - `Will you need opencode on this machine?` -> `yes` if you want OpenCode in the VM, otherwise `no`
 - `Will you need Neovim on this machine?` -> `yes`
+- `Should Helix be built from source on this machine?` -> `yes` if you want source-built Helix
 - `Neovim environment (work/private)` -> `work`
 - fill in the same identity values as on the host
 
@@ -204,5 +206,7 @@ This installs or updates the Scala toolchain expected by the VM setup:
 `chezmoi` now manages the Helix, Zellij, Lazygit, Yazi, and Scooter config from this repo directly.
 
 On development machines, `mise install` also pulls the editor-side tools managed here, including `lazygit`, `zellij`, `delta`, `golangci-lint`, `prettier`, and `emmet-ls`.
+
+If you opt into source-built Helix in the chezmoi prompts, Helix is built from the official repository on both Linux and macOS after Rust is available, so run `chezmoi apply` once after `mise install` during bootstrap.
 
 Theme assets for Yazi and Scooter are managed directly in this repo.

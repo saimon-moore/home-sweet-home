@@ -1,150 +1,136 @@
-# ~/.config/helix/languages.toml
 
-[language-server.gopls]
-command = "gopls"
-args = ["serve"]
+[language-server.dprint]
+command = "dprint"
+args = ["lsp"]
+
+[language-server.ltex-ls]
+command = "ltex-ls"
+
+[language-server.helm-ls]
+command = "helm_ls"
+
+[language-server.taplo.config]
+config = {}
 
 [language-server.gopls.config]
-"formatting.gofumpt" = true
-"ui.diagnostic.staticcheck" = true
-"ui.completion.usePlaceholders" = true
-"ui.semanticTokens" = true
+gofumpt = true
 
-[language-server.gopls.config.hints]
-assignVariableTypes = true
-compositeLiteralFields = true
-constantValues = true
-functionTypeParameters = true
-parameterNames = true
-rangeVariableTypes = true
-
-[language-server.golangci-lint-lsp]
-command = "golangci-lint-langserver"
-
-[language-server.golangci-lint-lsp.config]
-command = ["golangci-lint", "run", "--output.json.path=stdout", "--show-stats=false", "--issues-exit-code=1"]
-
-[language-server.ruby-lsp]
-command = "ruby-lsp"
-
-[language-server.metals]
-command = "metals"
-
-[language-server.metals.config]
-isHttpEnabled = true
-
-[language-server.metals.config.metals]
-inlayHints.typeParameters.enable = true
-inlayHints.hintsInPatternMatch.enable = true
-
-[language-server.yaml-language-server]
-command = "yaml-language-server"
-args = ["--stdio"]
-
-[language-server.yaml-language-server.config.yaml]
-validation = true
-schemaStore.enable = true
-
-[language-server.yaml-language-server.config.yaml.schemas]
-"https://json.schemastore.org/github-workflow.json" = ".github/workflows/*.{yml,yaml}"
-"https://json.schemastore.org/github-action.json" = ".github/actions/**/action.{yml,yaml}"
-"https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = "docker-compose*.{yml,yaml}"
-
-[language-server.vscode-json-language-server]
-command = "vscode-json-language-server"
-args = ["--stdio"]
-
-[language-server.vscode-json-language-server.config.json]
-validation.enable = true
-
-[language-server.vscode-json-language-server.config.json.schemas]
-"https://json.schemastore.org/package.json" = "package.json"
-"https://json.schemastore.org/tsconfig.json" = "tsconfig*.json"
-
-[language-server.vscode-html-language-server]
-command = "vscode-html-language-server"
-args = ["--stdio"]
-
-[language-server.emmet-ls]
-command = "emmet-ls"
-args = ["--stdio"]
-
-[language-server.helmls]
-command = "helm_ls"
-args = ["serve"]
-
-[[language]]
-name = "go"
-auto-format = true
-language-servers = ["gopls", "golangci-lint-lsp"]
-formatter = { command = "gofumpt" }
-
-[[language]]
-name = "gomod"
-auto-format = true
-language-servers = ["gopls"]
-
-[[language]]
-name = "gowork"
-auto-format = true
-language-servers = ["gopls"]
-
-[[language]]
-name = "gotmpl"
-auto-format = true
-language-servers = ["gopls"]
-
-[[language]]
-name = "helm"
-scope = "source.helm"
-roots = ["Chart.yaml", "Chart.lock"]
-file-types = [
-  { glob = "templates/*.yaml" },
-  { glob = "templates/*.yml" },
-  { glob = "templates/*.tpl" },
-  { glob = "templates/**/*.yaml" },
-  { glob = "templates/**/*.yml" },
-  { glob = "templates/**/*.tpl" },
-]
-language-servers = ["helmls"]
-comment-token = "#"
-indent = { tab-width = 2, unit = "  " }
-
-[[language]]
-name = "ruby"
-auto-format = true
-language-servers = ["ruby-lsp"]
-formatter = { command = "rubocop", args = ["--stdin", "-", "--autocorrect", "--stderr", "--format", "quiet"] }
+[language-server.yaml-language-server.config]
+yaml = { keyOrdering = false }
 
 [[language]]
 name = "scala"
-auto-format = true
 language-servers = ["metals"]
+auto-format = true
 
 [[language]]
-name = "yaml"
+name = "ruby"
+language-servers = ["ruby-lsp"]
+formatter = { command = "rufo", args = ["--simple-exit"] }
 auto-format = true
-language-servers = ["yaml-language-server"]
-formatter = { command = "prettier", args = ["--parser", "yaml"] }
-indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "go"
+language-servers = ["gopls"]
+auto-format = true
+
+[[language]]
+name = "elixir"
+language-servers = ["elixir-ls"]
+auto-format = true
+
+[[language]]
+name = "heex"
+language-servers = ["elixir-ls"]
+auto-format = true
+
+[[language]]
+name = "eex"
+file-types = [
+  "eex",
+  "erb",
+  { glob = "*.html.erb" },
+  { glob = "*.xml.erb" },
+  { glob = "*.js.erb" },
+  { glob = "*.css.erb" },
+  { glob = "*.json.erb" },
+  { glob = "*.yml.erb" },
+  { glob = "*.yaml.erb" },
+]
+auto-format = false
+
+[[language]]
+name = "gotmpl"
+file-types = [
+  "gotmpl",
+  "tpl",
+  "tmpl",
+  { glob = "**/templates/**/*.tpl" },
+  { glob = "**/templates/**/*.yaml" },
+  { glob = "**/templates/**/*.yml" },
+]
+roots = ["Chart.yaml", "go.mod", ".git"]
+language-servers = ["gopls", "helm-ls"]
+auto-format = false
 
 [[language]]
 name = "json"
+formatter = { command = "sh", args = ["-c", "dprint fmt --stdin %{buffer_name} --config $HOME/.config/helix/dprint.json"] }
+language-servers = [{ name = "dprint", only-features = ["format"] }]
 auto-format = true
-language-servers = ["vscode-json-language-server"]
-formatter = { command = "prettier", args = ["--parser", "json"] }
+
+[[language]]
+name = "toml"
+language-servers = ["taplo"]
+auto-format = true
+
+[[language]]
+name = "markdown"
+formatter = { command = "sh", args = ["-c", "dprint fmt --stdin %{buffer_name} --config $HOME/.config/helix/dprint.json"] }
+language-servers = [
+  { name = "marksman", except-features = ["format"] },
+  { name = "dprint", only-features = ["format"] },
+]
+auto-format = true
+
+[[language]]
+name = "yaml"
+formatter = { command = "yq", args = ["-P", "."] }
+language-servers = [
+  { name = "yaml-language-server", except-features = ["format"] },
+]
+auto-format = true
+
+[[language]]
+name = "bash"
+formatter = { command = "shfmt", args = ["-i", "2", "-ci"] }
+auto-format = true
+
+[[language]]
+name = "make"
+file-types = ["mk", { glob = "Makefile" }, { glob = "GNUmakefile" }, { glob = "*.mk" }]
+auto-format = false
+
+[[language]]
+name = "hocon"
+auto-format = false
 
 [[language]]
 name = "html"
+language-servers = ["vscode-html-language-server"]
 auto-format = true
-language-servers = ["vscode-html-language-server", "emmet-ls"]
-formatter = { command = "prettier", args = ["--parser", "html"] }
 
 [[language]]
-name = "erb"
-scope = "source.erb"
-injection-regex = "erb"
-file-types = ["erb", { glob = "*.html.erb" }, { glob = "*.erb" }]
-language-servers = ["ruby-lsp"]
-indent = { tab-width = 2, unit = "  " }
-block-comment-tokens = { start = "<%#", end = "%>" }
+name = "css"
+language-servers = ["vscode-css-language-server"]
+auto-format = true
+
+[[language]]
+name = "lua"
+formatter = { command = "stylua", args = ["-"] }
+language-servers = ["lua-language-server"]
+auto-format = true
+
+[[language]]
+name = "mermaid"
+auto-format = false
