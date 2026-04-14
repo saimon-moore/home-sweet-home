@@ -61,6 +61,32 @@ keybinds {
         bind "-" { Resize "Decrease"; }
     }
 
+    pane clear-defaults=true {
+        bind "Esc" "Alt a" { SwitchToMode "Locked"; }
+        bind "h" "Left" { MoveFocus "Left"; }
+        bind "j" "Down" { MoveFocus "Down"; }
+        bind "k" "Up" { MoveFocus "Up"; }
+        bind "l" "Right" { MoveFocus "Right"; }
+        bind "n" { NewPane; }
+        bind "-" { NewPane "Down"; }
+        bind "\\" { NewPane "Right"; }
+        bind "x" { CloseFocus; SwitchToMode "Locked"; }
+        bind "f" { ToggleFocusFullscreen; SwitchToMode "Locked"; }
+        bind "z" { TogglePaneEmbedOrFloating; SwitchToMode "Locked"; }
+    }
+
+    session clear-defaults=true {
+        bind "Esc" "Alt a" { SwitchToMode "Locked"; }
+        bind "d" { Detach; SwitchToMode "Locked"; }
+        bind "w" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Locked";
+        }
+    }
+
     scroll clear-defaults=true {
         bind "Esc" "Alt a" { SwitchToMode "Locked"; }
         bind "j" "Down" { ScrollDown; }
