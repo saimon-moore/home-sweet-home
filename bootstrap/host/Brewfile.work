@@ -7,7 +7,6 @@ brew "fzf"
 brew "lima"
 brew "openjdk@21"
 brew "ripgrep"
-brew "tmux"
 brew "worktrunk"
 brew "zoxide"
 

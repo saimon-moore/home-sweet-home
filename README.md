@@ -205,7 +205,7 @@ This installs or updates the Scala toolchain expected by the VM setup:
 
 `chezmoi` now manages the Helix, Zellij, Lazygit, Yazi, and Scooter config from this repo directly.
 
-On development machines, `mise install` also pulls the editor-side tools managed here, including `lazygit`, `zellij`, `delta`, `golangci-lint`, `prettier`, and `emmet-ls`.
+On development machines, `mise install` also pulls the editor-side tools managed here, including `lazygit`, `zellij`, `yazi`, `scooter`, `delta`, `golangci-lint`, `prettier`, and `emmet-ls`.
 
 If you opt into source-built Helix in the chezmoi prompts, Helix is built from the official repository on both Linux and macOS after Rust is available, so run `chezmoi apply` once after `mise install` during bootstrap.
 
