@@ -5,7 +5,7 @@ theme "catppuccin-mocha"
 simplified_ui false
 pane_frames true
 default_mode "locked"
-default_layout "compact"
+default_layout "default"
 copy_on_select true
 scrollback_editor "hx"
 mouse_mode true
