@@ -13,7 +13,7 @@ show_startup_tips false
 web_server false
 web_sharing "off"
 compact-bar location="zellij:compact-bar" {
-    tooltip "F1"
+    tooltip "?"
 }
 default_layout "default"
 
