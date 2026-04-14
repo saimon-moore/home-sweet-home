@@ -18,7 +18,7 @@ keybinds {
     unbind "Ctrl g"
 
     normal {
-        bind "Ctrl o" {
+        bind "Alt o" {
             LaunchOrFocusPlugin "session-manager" {
                 floating true
                 move_to_focused_tab true
@@ -50,6 +50,12 @@ keybinds {
 
     locked {
         bind "Alt a" { SwitchToMode "Normal"; }
+        bind "Alt o" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
         bind "Alt x" { CloseFocus; }
         bind "Alt q" { CloseTab; }
         bind "Alt z" { ToggleFocusFullscreen; }
