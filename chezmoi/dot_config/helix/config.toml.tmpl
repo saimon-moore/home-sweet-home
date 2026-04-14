@@ -1,7 +1,9 @@
 theme = "catppuccin_mocha_black"
 
 [editor]
+{{- if eq .chezmoi.os "darwin" }}
 clipboard-provider = "pasteboard"
+{{- end }}
 default-yank-register = "+"
 end-of-line-diagnostics = "warning"
 color-modes = true
