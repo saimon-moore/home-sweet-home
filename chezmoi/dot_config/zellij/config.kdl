@@ -8,7 +8,7 @@ default_mode "locked"
 default_layout "default"
 copy_on_select true
 scrollback_editor "hx"
-mouse_mode true
+mouse_mode false
 mouse_hover_effects false
 session_serialization false
 show_startup_tips false
