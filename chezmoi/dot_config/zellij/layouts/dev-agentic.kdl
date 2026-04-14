@@ -5,7 +5,7 @@ layout {
         plugin location="compact-bar"
     }
 
-    pane split_direction="horizontal" {
+    pane split_direction="vertical" {
         pane name="hx" command="hx" focus=true
         pane name="opencode" command="opencode"
     }
