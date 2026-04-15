@@ -97,13 +97,16 @@ ZELLIJ
 
 WEZTERM
   Tab shortcuts:
-    Super-Shift-l     switch to local tab
-    Super-Shift-d     switch to dev tab
-    Super-Shift-r     reload config
+    Super-Shift-l     switch to first tab
+    Super-Shift-d     switch to second tab
+    Super-Shift-n     switch to next tab
+    Super-Shift-p     switch to previous tab
+    Super-Shift-c     create tab
+    Super-Shift-r     rename current tab
 
   Notes:
-    wezterm starts with local and dev tabs
     default wezterm multiplexer bindings are disabled
+    persistent wezterm mux server is disabled
 
   Project flows:
     ,zdev       pick project with zoxide, open dev tab there

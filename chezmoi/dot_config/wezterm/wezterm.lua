@@ -3,6 +3,10 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 
+local function trim_whitespace(value)
+	return (value:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
 config.color_scheme = "Catppuccin Mocha"
 config.colors = {
 	background = "#000000",
@@ -28,18 +32,33 @@ config.window_padding = {
 
 config.default_cursor_style = "SteadyBar"
 
-config.unix_domains = {
-	{
-		name = "unix",
-	},
-}
-
-config.default_gui_startup_args = { "connect", "unix" }
-
 local function activate_tab(index)
 	return wezterm.action_callback(function(window, pane)
 		window:perform_action(act.ActivateTab(index), pane)
 	end)
+end
+
+local function prompt_tab_title(window, pane)
+	local tab = pane and pane:tab()
+	local current_title = tab and tab:get_title() or ""
+
+	window:perform_action(
+		act.PromptInputLine({
+			description = "Tab title",
+			initial_value = current_title,
+			action = wezterm.action_callback(function(_, prompt_pane, line)
+				if not line or not prompt_pane then
+					return
+				end
+
+				local prompt_tab = prompt_pane:tab()
+				if prompt_tab then
+					prompt_tab:set_title(trim_whitespace(line))
+				end
+			end),
+		}),
+		pane
+	)
 end
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
@@ -71,27 +90,13 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	}
 end)
 
-wezterm.on("gui-startup", function(cmd)
-	local cwd = cmd and cmd.cwd or nil
-	local tab, _, window = wezterm.mux.spawn_window({
-		cwd = cwd,
-	})
-
-	tab:set_title("local")
-	window:spawn_tab({
-		cwd = cwd,
-	})
-
-	local tabs = window:tabs()
-	if tabs[2] then
-		tabs[2]:set_title("dev")
-	end
-end)
-
 config.keys = {
 	{ key = "L", mods = "SUPER|SHIFT", action = activate_tab(0) },
 	{ key = "D", mods = "SUPER|SHIFT", action = activate_tab(1) },
-	{ key = "R", mods = "SUPER|SHIFT", action = act.ReloadConfiguration },
+	{ key = "N", mods = "SUPER|SHIFT", action = act.ActivateTabRelative(1) },
+	{ key = "P", mods = "SUPER|SHIFT", action = act.ActivateTabRelative(-1) },
+	{ key = "C", mods = "SUPER|SHIFT", action = act.SpawnTab("CurrentPaneDomain") },
+	{ key = "R", mods = "SUPER|SHIFT", action = wezterm.action_callback(prompt_tab_title) },
 	{ key = "+", mods = "SUPER", action = act.IncreaseFontSize },
 	{ key = "-", mods = "SUPER", action = act.DecreaseFontSize },
 }
