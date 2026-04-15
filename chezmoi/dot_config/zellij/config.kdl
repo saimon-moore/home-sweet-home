@@ -185,6 +185,12 @@ keybinds {
         bind "Alt 9" { GoToTab 9; }
     }
 
+    renametab {
+        bind "Ctrl c" { SwitchToMode "Locked"; }
+        bind "Enter" { SwitchToMode "Locked"; }
+        bind "Esc" { UndoRenameTab; SwitchToMode "Locked"; }
+    }
+
     shared_except "locked" {
         bind "Alt a" { SwitchToMode "Locked"; }
     }
