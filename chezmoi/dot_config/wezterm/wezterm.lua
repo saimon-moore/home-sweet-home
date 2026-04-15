@@ -74,6 +74,22 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	}
 end)
 
+wezterm.on("gui-startup", function(cmd)
+	local cwd = cmd and cmd.cwd or nil
+	local tab, _, window = wezterm.mux.spawn_window({
+		cwd = cwd,
+	})
+
+	tab:set_title("local")
+
+	local dev_tab = window:spawn_tab({
+		cwd = cwd,
+	})
+	dev_tab:set_title("dev")
+
+	tab:activate()
+end)
+
 config.keys = {
 	{ key = "L", mods = "SUPER|SHIFT", action = activate_tab(0) },
 	{ key = "D", mods = "SUPER|SHIFT", action = activate_tab(1) },

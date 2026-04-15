@@ -107,6 +107,7 @@ WEZTERM
   Notes:
     default wezterm multiplexer bindings are disabled
     persistent wezterm mux server is disabled
+    wezterm starts with local and dev tabs
 
   Project flows:
     ,zdev       pick project with zoxide, open dev tab there
