@@ -24,7 +24,7 @@ keybinds {
     unbind "Ctrl g"
 
     normal {
-        bind "Alt g" {
+        bind "Alt G" {
             Run "lazygit" {
                 floating true
                 x "7%"
@@ -35,8 +35,9 @@ keybinds {
             }
             SwitchToMode "Locked"
         }
-        bind "Alt e" {
+        bind "Alt E" {
             Run "yazi" {
+                cwd "."
                 floating true
                 x "7%"
                 y "7%"
@@ -46,7 +47,7 @@ keybinds {
             }
             SwitchToMode "Locked"
         }
-        bind "Alt r" {
+        bind "Alt R" {
             Run "scooter" {
                 floating true
                 x "7%"
@@ -57,18 +58,29 @@ keybinds {
             }
             SwitchToMode "Locked"
         }
-        bind "Alt x" { CloseFocus; SwitchToMode "Locked"; }
-        bind "Alt q" { CloseTab; SwitchToMode "Locked"; }
-        bind "Alt z" { ToggleFocusFullscreen; SwitchToMode "Locked"; }
-        bind "Alt v" { NewPane; TogglePaneEmbedOrFloating; SwitchToMode "Locked"; }
-        bind "Alt n" { NewPane; SwitchToMode "Locked"; }
-        bind "Alt -" { NewPane "Down"; SwitchToMode "Locked"; }
-        bind "Alt \\" { NewPane "Right"; SwitchToMode "Locked"; }
-        bind "Alt h" { MoveFocus "Left"; SwitchToMode "Locked"; }
-        bind "Alt j" { MoveFocus "Down"; SwitchToMode "Locked"; }
-        bind "Alt k" { MoveFocus "Up"; SwitchToMode "Locked"; }
-        bind "Alt l" { MoveFocus "Right"; SwitchToMode "Locked"; }
-        bind "Alt t" { NewTab; SwitchToMode "Locked"; }
+        bind "Alt F" {
+            Run "zsh" "-l" {
+                cwd "."
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+            SwitchToMode "Locked"
+        }
+        bind "Alt Q" { CloseTab; SwitchToMode "Locked"; }
+        bind "Alt H" { MoveFocus "Left"; SwitchToMode "Locked"; }
+        bind "Alt J" { MoveFocus "Down"; SwitchToMode "Locked"; }
+        bind "Alt K" { MoveFocus "Up"; SwitchToMode "Locked"; }
+        bind "Alt L" { MoveFocus "Right"; SwitchToMode "Locked"; }
+        bind "Alt T" { NewTab; SwitchToMode "Locked"; }
+        bind "Alt N" { GoToNextTab; SwitchToMode "Locked"; }
+        bind "Alt P" { GoToPreviousTab; SwitchToMode "Locked"; }
+        bind "Alt V" { TogglePaneEmbedOrFloating; SwitchToMode "Locked"; }
+        bind "Alt Z" { ToggleFocusFullscreen; SwitchToMode "Locked"; }
+        bind "Alt D" { Detach; }
         bind "Alt 1" { GoToTab 1; SwitchToMode "Locked"; }
         bind "Alt 2" { GoToTab 2; SwitchToMode "Locked"; }
         bind "Alt 3" { GoToTab 3; SwitchToMode "Locked"; }
@@ -82,6 +94,68 @@ keybinds {
 
     locked {
         bind "Alt a" { SwitchToMode "Normal"; }
+        bind "Alt G" {
+            Run "lazygit" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt E" {
+            Run "yazi" {
+                cwd "."
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt R" {
+            Run "scooter" {
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt F" {
+            Run "zsh" "-l" {
+                cwd "."
+                floating true
+                x "7%"
+                y "7%"
+                width "86%"
+                height "86%"
+                close_on_exit true
+            }
+        }
+        bind "Alt Q" { CloseTab; }
+        bind "Alt H" { MoveFocus "Left"; }
+        bind "Alt J" { MoveFocus "Down"; }
+        bind "Alt K" { MoveFocus "Up"; }
+        bind "Alt L" { MoveFocus "Right"; }
+        bind "Alt T" { NewTab; }
+        bind "Alt N" { GoToNextTab; }
+        bind "Alt P" { GoToPreviousTab; }
+        bind "Alt V" { TogglePaneEmbedOrFloating; }
+        bind "Alt Z" { ToggleFocusFullscreen; }
+        bind "Alt D" { Detach; }
+        bind "Alt 1" { GoToTab 1; }
+        bind "Alt 2" { GoToTab 2; }
+        bind "Alt 3" { GoToTab 3; }
+        bind "Alt 4" { GoToTab 4; }
+        bind "Alt 5" { GoToTab 5; }
+        bind "Alt 6" { GoToTab 6; }
+        bind "Alt 7" { GoToTab 7; }
+        bind "Alt 8" { GoToTab 8; }
+        bind "Alt 9" { GoToTab 9; }
     }
 
     shared_except "locked" {

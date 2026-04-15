@@ -72,22 +72,37 @@ ZELLIJ
     Alt-a       unlock to Normal mode
     Alt-a       lock again from any unlocked mode
 
-  Pane and tab actions after Alt-a:
-    Alt-n       new pane
-    Alt--       split down
-    Alt-\\      split right
-    Alt-h/j/k/l move focus
-    Alt-t       new tab
-    Alt-1..9    go to tab 1..9
-    Ctrl-o      open session manager
-
-  Rename pane:
-    Alt-a, Ctrl-p, c
+  Locked-mode quick actions:
+    Alt-Shift-h/j/k/l move focus
+    Alt-Shift-t       new tab
+    Alt-Shift-p       previous tab
+    Alt-Shift-n       next tab
+    Alt-1..9          go to tab 1..9
+    Alt-Shift-f       floating zsh in current directory
+    Alt-Shift-g       floating lazygit
+    Alt-Shift-r       floating scooter
+    Alt-Shift-e       floating yazi in current directory
+    Alt-Shift-v       toggle focused pane floating/embedded
+    Alt-Shift-z       zoom/unzoom focused pane
+    Alt-Shift-q       close tab and panes
+    Alt-Shift-d       detach session
+    Ctrl-o            open session manager
 
   Notes:
     compact layout is enabled
     pane frames are enabled for focus visibility
     web server and web sharing are disabled
+
+WEZTERM
+  Workspace shortcuts:
+    Super-Shift-l     switch to local
+    Super-Shift-d     switch to dev
+    Super-Shift-w     workspace picker
+    Super-Shift-r     reload config
+
+  Notes:
+    wezterm starts in workspace local
+    default wezterm multiplexer bindings are disabled
 
   Project flows:
     ,zdev       pick project with zoxide, open dev tab there
