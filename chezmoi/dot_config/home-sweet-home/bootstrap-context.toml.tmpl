@@ -1,5 +1,7 @@
 {{- $needsNeovim := .develop -}}
 {{- if hasKey . "needs_neovim" }}{{- $needsNeovim = .needs_neovim }}{{- end }}
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
 {{- $buildHelixFromSource := false -}}
 {{- if hasKey . "build_helix_from_source" }}{{- $buildHelixFromSource = .build_helix_from_source }}{{- end }}
 {{- $myNvimEnv := "" -}}
@@ -7,6 +9,7 @@
 develop = {{ .develop }}
 needs_opencode = {{ .needs_opencode }}
 needs_neovim = {{ $needsNeovim }}
+needs_taskwarrior = {{ $needsTaskwarrior }}
 build_helix_from_source = {{ $buildHelixFromSource }}
 mynvim_env = {{ $myNvimEnv | quote }}
 work = {{ if ne .work_username "" }}true{{ else }}false{{ end }}

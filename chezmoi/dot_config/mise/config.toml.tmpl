@@ -1,5 +1,7 @@
 {{- $needsNeovim := .develop -}}
 {{- if hasKey . "needs_neovim" }}{{- $needsNeovim = .needs_neovim }}{{- end }}
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
 {{- $buildHelixFromSource := false -}}
 {{- if hasKey . "build_helix_from_source" }}{{- $buildHelixFromSource = .build_helix_from_source }}{{- end }}
 
@@ -15,7 +17,16 @@ opencode = "1.4.3"
 {{- end }}
 
 starship = "latest"
+
+{{- $linuxArm := and (eq .chezmoi.os "linux") (or (eq .chezmoi.arch "arm64") (eq .chezmoi.arch "aarch64")) }}
+{{- if $needsTaskwarrior }}
+{{- if ne .chezmoi.os "linux" }}
 taskwarrior = "latest"
+{{- end }}
+{{- if not $linuxArm }}
+"github:kdheepak/taskwarrior-tui" = "latest"
+{{- end }}
+{{- end }}
 
 {{- if $needsNeovim }}
 neovim = "latest"

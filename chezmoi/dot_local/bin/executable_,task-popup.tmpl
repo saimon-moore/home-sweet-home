@@ -1,0 +1,30 @@
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
+{{- if $needsTaskwarrior }}
+#!/usr/bin/env bash
+set -euo pipefail
+
+is_linux_arm=false
+if [[ "$(uname -s)" == "Linux" ]]; then
+	case "$(uname -m)" in
+		aarch64|arm64)
+			is_linux_arm=true
+			;;
+		esac
+fi
+
+if [[ "$is_linux_arm" == false ]] && command -v taskwarrior-tui >/dev/null 2>&1; then
+	exec taskwarrior-tui "$@"
+fi
+
+if ! command -v task >/dev/null 2>&1; then
+	echo "Error: taskwarrior is not installed." >&2
+	printf 'Press Enter to close...'
+	read -r _
+	exit 1
+fi
+
+task "$@"
+printf '\nPress Enter to close...'
+read -r _
+{{- end }}

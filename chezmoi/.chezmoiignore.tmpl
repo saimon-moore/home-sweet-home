@@ -1,7 +1,9 @@
 {{- $host := not .develop -}}
 {{- $darwin := eq .chezmoi.os "darwin" -}}
 {{- $needsNeovim := .develop -}}
+{{- $needsTaskwarrior := false -}}
 {{- if hasKey . "needs_neovim" }}{{- $needsNeovim = .needs_neovim }}{{- end }}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
 
 {{- if not $host }}
 .local/bin/,dev
@@ -31,6 +33,13 @@ Library/Application Support/lazygit/config.yml
 {{- if not .needs_opencode }}
 .config/opencode
 .config/opencode/**
+{{- end }}
+
+{{- if not $needsTaskwarrior }}
+.taskrc
+.taskrc.d
+.taskrc.d/**
+.local/bin/,task-popup
 {{- end }}
 
 {{- if not $needsNeovim }}

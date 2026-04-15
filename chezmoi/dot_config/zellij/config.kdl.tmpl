@@ -1,5 +1,8 @@
 // ~/.config/zellij/config.kdl
 
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
+
 theme "catppuccin-mocha"
 
 simplified_ui true
@@ -61,8 +64,9 @@ keybinds {
                 close_on_exit true
             }
         }
+{{- if $needsTaskwarrior }}
         bind "Alt W" {
-            Run "taskwarrior-tui" {
+            Run ",task-popup" {
                 floating true
                 x "7%"
                 y "7%"
@@ -71,6 +75,7 @@ keybinds {
                 close_on_exit true
             }
         }
+{{- end }}
         bind "Alt ?" {
             Run ",cheatsheet" {
                 floating true
@@ -155,8 +160,9 @@ keybinds {
                 close_on_exit true
             }
         }
+{{- if $needsTaskwarrior }}
         bind "Alt W" {
-            Run "taskwarrior-tui" {
+            Run ",task-popup" {
                 floating true
                 x "7%"
                 y "7%"
@@ -165,6 +171,7 @@ keybinds {
                 close_on_exit true
             }
         }
+{{- end }}
         bind "Alt ?" {
             Run ",cheatsheet" {
                 floating true

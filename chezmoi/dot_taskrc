@@ -1,3 +1,6 @@
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
+{{- if $needsTaskwarrior }}
 data.location=~/Documents/tasks
 news.version=3.4.2
 include ~/.taskrc.d/catppuccin-mocha-black.theme
@@ -31,3 +34,4 @@ urgency.user.tag.maintenance.coefficient=1.5
 urgency.uda.priority.XL.coefficient=-1
 
 color.enabled=on
+{{- end }}

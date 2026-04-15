@@ -1,0 +1,25 @@
+{{- $needsTaskwarrior := false -}}
+{{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
+{{- if and $needsTaskwarrior (eq .chezmoi.os "linux") -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v dnf >/dev/null 2>&1; then
+	exit 0
+fi
+
+if rpm -q task2 >/dev/null 2>&1; then
+	exit 0
+fi
+
+if [[ "$(id -u)" -eq 0 ]]; then
+	exec dnf install -y task2
+fi
+
+if command -v sudo >/dev/null 2>&1; then
+	exec sudo dnf install -y task2
+fi
+
+echo "Error: task2 is not installed and sudo is unavailable." >&2
+exit 1
+{{- end }}
