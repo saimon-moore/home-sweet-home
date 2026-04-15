@@ -91,6 +91,8 @@ wezterm.on("gui-startup", function(cmd)
 end)
 
 config.keys = {
+	{ key = "C", mods = "SUPER", action = act.CopyTo("Clipboard") },
+	{ key = "P", mods = "SUPER", action = act.PasteFrom("Clipboard") },
 	{ key = "L", mods = "SUPER|SHIFT", action = activate_tab(0) },
 	{ key = "D", mods = "SUPER|SHIFT", action = activate_tab(1) },
 	{ key = "N", mods = "SUPER|SHIFT", action = act.ActivateTabRelative(1) },

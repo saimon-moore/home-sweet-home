@@ -1,0 +1,32 @@
+data.location=~/Documents/tasks
+news.version=3.4.2
+
+# default urgencies
+#urgency.user.tag.next.coefficient           15.0 # +next tag
+#urgency.due.coefficient                     12.0 # overdue or near due date
+#urgency.blocking.coefficient                 8.0 # blocking other tasks
+#urgency.uda.priority.H.coefficient           6.0 # high Priority
+#urgency.uda.priority.M.coefficient           3.9 # medium Priority
+#urgency.uda.priority.L.coefficient           1.8 # low Priority
+#urgency.scheduled.coefficient                5.0 # scheduled tasks
+#urgency.active.coefficient                   4.0 # already started tasks
+#urgency.age.coefficient                      2.0 # coefficient for age
+#urgency.annotations.coefficient              1.0 # has annotations
+#urgency.tags.coefficient                     1.0 # has tags
+#urgency.project.coefficient                  1.0 # assigned to any project
+#urgency.user.project.My Project.coefficient  5.0 # assigned to project:"My Project"
+#urgency.waiting.coefficient                 -3.0 # waiting task
+#urgency.blocked.coefficient                 -5.0 # blocked by other tasks
+
+urgency.user.tag.problem.coefficient=4.5
+urgency.user.tag.bug.coefficient=8.0
+urgency.user.tag.security.coefficient=8.0
+urgency.user.tag.maybe.coefficient=-7.0
+urgency.user.tag.someday.coefficient=-7.0
+urgency.user.tag.later.coefficient=-6.0
+urgency.user.tag.chore.coefficient=0.5
+urgency.user.tag.maintenance.coefficient=1.5
+
+urgency.uda.priority.XL.coefficient=-1
+
+color.enabled=on
