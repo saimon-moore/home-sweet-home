@@ -172,7 +172,20 @@ Sync credentials for a VM user with:
 
 If Ruby gems use a different host than the primary JFrog host, pass `--ruby-host` too.
 
-The sync writes `~/.config/home-sweet-home/jfrog-oidc.env` in the VM, which the VM shell sources automatically. It exposes `JFROG_OIDC_USER`, `JFROG_OIDC_TOKEN`, `JFROG_HOST`, `JFROG_REALM`, and a Bundler `BUNDLE_<host>` variable.
+To also wire npm up to a JFrog npm registry, pass `--npm-registry`:
+
+```bash
+,sync-jfrog-to-vm \
+  --host your.jfrog.example.com \
+  --npm-registry https://your.jfrog.example.com/artifactory/api/npm/npm-virtual/
+```
+
+For a scoped registry (recommended when JFrog only hosts your own packages and public packages still come from npmjs), add `--npm-scope company`. The sync then writes `@company:registry=...` instead of a global `registry=...` line.
+
+The sync writes two files inside the VM:
+
+- `~/.config/home-sweet-home/jfrog-oidc.env` — sourced automatically by the VM shell. Exposes `JFROG_OIDC_USER`, `JFROG_OIDC_TOKEN`, `JFROG_HOST`, `JFROG_REALM`, and a Bundler `BUNDLE_<host>` variable.
+- `~/.npmrc` — only touched when `--npm-registry` is passed. Auth lines go between `# BEGIN home-sweet-home jfrog npm auth` / `# END home-sweet-home jfrog npm auth` sentinels, so re-running the sync replaces the block idempotently and leaves the rest of the file alone. `.npmrc` is managed as `create_` in chezmoi (created once with `ignore-scripts=true`, never overwritten), so the auth lines persist across `chezmoi apply`.
 
 ## Terminal IDE
 

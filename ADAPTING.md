@@ -245,13 +245,21 @@ Work-specific; only meaningful on machines with `work_username` set.
    `bootstrap/vm/sync-jfrog.sh`) writes `~/.config/home-sweet-home/jfrog-oidc.env`
    inside the VM with the env vars plus a `BUNDLE_<host>` variable for
    Bundler (Ruby gems hosted on private JFrog repos).
-3. `dot_config/zsh/rc.d/20_jfrog.tmpl` sources that file on every VM shell,
-   so Bundler/CLI tools see the credentials automatically.
+3. Adding `--npm-registry <URL>` (and optionally `--npm-scope <name>`)
+   extends the same sync to npm: the script manages an auth block in
+   `~/.npmrc` between sentinel markers so re-runs replace it in place.
+   `chezmoi/create_dot_npmrc` seeds `.npmrc` once with `ignore-scripts=true`
+   and then leaves it alone — that's why the auth block survives
+   `chezmoi apply`.
+4. `dot_config/zsh/rc.d/20_jfrog.tmpl` sources `jfrog-oidc.env` on every VM
+   shell, so Bundler/CLI tools see the credentials automatically.
+   `,jfrog_oidc_status` reports whether the env is loaded and whether the
+   npm auth block is present.
 
 If you don't use JFrog, delete `bootstrap/vm/sync-jfrog.sh`,
-`,sync-jfrog-to-vm`, and `20_jfrog.tmpl`. If you use a different private
-repo, the flow is a reasonable template — keep the shape, swap the URL and
-credential sources.
+`,sync-jfrog-to-vm`, and `20_jfrog.tmpl`, and drop `create_dot_npmrc` back
+to `dot_npmrc`. If you use a different private repo, the flow is a
+reasonable template — keep the shape, swap the URL and credential sources.
 
 ## OpenCode (optional)
 

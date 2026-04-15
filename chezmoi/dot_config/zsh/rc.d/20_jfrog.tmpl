@@ -18,5 +18,11 @@ fi
 	else
 		echo "JFrog OIDC environment is not loaded"
 	fi
+
+	if [[ -f "$HOME/.npmrc" ]] && grep -q '^# BEGIN home-sweet-home jfrog npm auth$' "$HOME/.npmrc"; then
+		echo "npm JFrog auth block present in ~/.npmrc"
+	else
+		echo "npm JFrog auth block missing from ~/.npmrc"
+	fi
 }
 {{- end }}
