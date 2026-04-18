@@ -72,11 +72,6 @@ if [[ -f "$HOME/.ssh/config" ]] && grep -q "$SSH_KEY_MARKER" "$HOME/.ssh/config"
 	else
 		bad "$HOME/.ssh/$SSH_KEY_MARKER key file missing — copy it from your backup"
 	fi
-	if grep -q 'Host github-onlyfy' "$HOME/.ssh/config" 2>/dev/null; then
-		ok "github-onlyfy SSH alias configured"
-	else
-		bad "github-onlyfy SSH alias not found"
-	fi
 else
 	bad "$SSH_KEY_MARKER not found in ~/.ssh/config"
 fi

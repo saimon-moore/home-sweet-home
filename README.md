@@ -27,12 +27,12 @@ Before running the installer:
 2. **Xcode Command Line Tools** — the Homebrew install in
    `install.sh` will trigger the CLT installer if missing. Click
    through it when prompted and re-run if needed.
-3. **Backed-up SSH keys** reachable from the new machine (iCloud,
+3. **Backed-up SSH key** reachable from the new machine (iCloud,
    external drive, password manager, etc.). After the installer
-   finishes you'll copy these into `~/.ssh/`:
+   finishes you'll copy this into `~/.ssh/`:
    - `id_ed25519_xing` (+ `.pub`) — Onlyfy/XING identity and signing
-     key. Used by both the `github-onlyfy` alias (for github.com/
-     saimon-moore) and the `github-xing` alias (for source.xing.com).
+     key. Used directly by the chezmoi-managed `~/.ssh/config` for
+     both `github.com` and `source.xing.com`.
 4. **Work IT will push** the MDM-managed apps separately via
    Company Portal / Self Service — Cortex XDR, FortiClient, Iru
    Self Service, uniFLOW, authigo2, BeeCore, Phrase desktop. See
@@ -56,7 +56,7 @@ Before running the installer:
      `brew bundle` against `bootstrap/host/Brewfile` (installs the
      curated brew formulae and 35 GUI casks).
    - Fires `run_once_after_nb-notebooks-bootstrap.sh.tmpl` → clones
-     the `xing` nb notebook from `git@github-onlyfy:saimon-moore/nb`
+     the `xing` nb notebook from `git@github.com:saimon-moore/nb`
      into `~/.nb/xing`.
    - Drops `~/Desktop/home-sweet-home.md` (a daily-use quick
      reference).
@@ -81,9 +81,10 @@ occasionally pause for macOS to ask permission for a cask install
    chmod 600 "$HOME/.ssh"/id_ed25519_xing
    chmod 644 "$HOME/.ssh"/id_ed25519_xing.pub
    ```
-   The nb bootstrap hook clones over the `github-onlyfy` alias, so
-   this key must be in place before `chezmoi apply` or re-apply it
-   afterwards with `,chezmoi-init`.
+   The nb bootstrap hook clones over `git@github.com:...` and the
+   chezmoi-managed `~/.ssh/config` routes github.com through this
+   key, so the file must be in place before `chezmoi apply` (or
+   re-apply afterwards with `,chezmoi-init`).
    Confirm with `,verify`.
 3. **Create the dev VM:** `,create-vm`. This provisions lima with
    the Ubuntu LTS template defined in `lima/dev-ubuntu.yaml`.
@@ -116,7 +117,7 @@ occasionally pause for macOS to ask permission for a cask install
 - `chezmoi status` — no pending changes
 - Git aliases loaded (`git pam` et al.) + `commit.gpgsign = true`
 - `~/.ssh/config` references `id_ed25519_xing` and the key file is
-  present; `github-onlyfy` alias is defined
+  present
 - `~/.nb/xing` is a real git repo
 - lima dev VM exists
 - `~/Desktop/home-sweet-home.md` is in place
@@ -182,6 +183,32 @@ The sync writes two files inside the VM:
   the file alone. `.npmrc` is managed as `create_` in chezmoi
   (created once with `ignore-scripts=true`, never overwritten), so
   the auth lines persist across `chezmoi apply`.
+
+---
+
+## Migrating old clones away from `github-onlyfy`
+
+Earlier versions of this repo's SSH config defined a `github-onlyfy`
+alias that routed `git@github-onlyfy:...` URLs through the Onlyfy
+key. The current setup drops the alias and instead points
+`Host github.com` directly at `id_ed25519_xing`, since this machine
+only ever needs that one key for github.com.
+
+If you restore work repos from a backup that was originally cloned
+under the old setup, their remotes will still look like
+`git@github-onlyfy:owner/repo.git` and `git fetch`/`git push` will
+fail once the alias is gone. Use:
+
+```bash
+,migrate-github-onlyfy-remotes ~/code            # dry-run, prints proposed rewrites
+,migrate-github-onlyfy-remotes --apply ~/code    # actually rewrites the URLs
+```
+
+The script walks the given directory recursively, finds every git
+repo, and for each remote URL of the form `git@github-onlyfy:...`
+runs `git remote set-url` to replace the host with `github.com`.
+Both fetch and push URLs are updated. Safe to re-run; only matching
+URLs are touched.
 
 ---
 

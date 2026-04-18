@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Find git repos under a given directory whose remotes still reference
+# the github-onlyfy SSH alias and rewrite them to plain github.com.
+#
+# Useful after dropping the github-onlyfy alias from ~/.ssh/config —
+# any repo cloned under the old setup keeps its alias-based remote URL
+# until you run `git remote set-url`. This script does the bulk
+# update.
+#
+# Usage:
+#   ,migrate-github-onlyfy-remotes <directory>           dry-run (default)
+#   ,migrate-github-onlyfy-remotes --apply <directory>   actually rewrite
+#
+# Walks <directory> recursively, finds every git repo, and for each
+# remote URL of the form `git@github-onlyfy:owner/repo` proposes (or
+# applies) a rewrite to `git@github.com:owner/repo`. Both fetch and
+# push URLs are updated.
+
+set -euo pipefail
+
+readonly OLD_HOST="github-onlyfy"
+readonly NEW_HOST="github.com"
+
+apply=false
+root=""
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--apply)
+			apply=true
+			shift
+			;;
+		-h|--help)
+			sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
+			exit 0
+			;;
+		-*)
+			echo "Unknown option: $1" >&2
+			exit 2
+			;;
+		*)
+			if [[ -n "$root" ]]; then
+				echo "Error: only one directory argument is supported" >&2
+				exit 2
+			fi
+			root="$1"
+			shift
+			;;
+	esac
+done
+
+if [[ -z "$root" ]]; then
+	echo "Usage: $(basename "$0") [--apply] <directory>" >&2
+	exit 2
+fi
+
+if [[ ! -d "$root" ]]; then
+	echo "Error: $root is not a directory" >&2
+	exit 1
+fi
+
+scanned=0
+matched=0
+rewritten=0
+
+while IFS= read -r -d '' git_path; do
+	repo_dir=$(dirname "$git_path")
+	scanned=$((scanned+1))
+
+	# git remote -v lists each remote twice (fetch + push); dedup by name.
+	while IFS=$'\t' read -r remote_name remote_url; do
+		case "$remote_url" in
+			"git@${OLD_HOST}:"*) ;;
+			*) continue ;;
+		esac
+
+		new_url=${remote_url/git@${OLD_HOST}:/git@${NEW_HOST}:}
+		matched=$((matched+1))
+		printf '%s\n  %s\n  %s\n  → %s\n' "$repo_dir" "$remote_name" "$remote_url" "$new_url"
+
+		if [[ "$apply" == true ]]; then
+			git -C "$repo_dir" remote set-url "$remote_name" "$new_url"
+			rewritten=$((rewritten+1))
+		fi
+	done < <(git -C "$repo_dir" remote -v 2>/dev/null \
+		| awk '!seen[$1]++ { print $1"\t"$2 }')
+done < <(find "$root" -type d -name '.git' -print0 2>/dev/null)
+
+printf '\nScanned %d repo(s); matched %d remote(s)' "$scanned" "$matched"
+if [[ "$apply" == true ]]; then
+	printf '; rewrote %d.\n' "$rewritten"
+else
+	printf '. Re-run with --apply to rewrite.\n'
+fi

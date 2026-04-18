@@ -71,8 +71,8 @@ nb sync             pull + push to GitHub
 ```
 
 This machine is wired to the **xing** notebook at
-`~/.nb/xing` → `git@github-onlyfy:saimon-moore/nb.git` (routes
-through the `github-onlyfy` SSH alias using `id_ed25519_xing`).
+`~/.nb/xing` → `git@github.com:saimon-moore/nb.git`. The chezmoi-
+managed `~/.ssh/config` routes github.com through `id_ed25519_xing`.
 
 ---
 
@@ -125,6 +125,18 @@ Add `--ruby-host` if Ruby gems use a different host, or
 `--npm-registry <URL> [--npm-scope <name>]` to wire up npm too.
 The sync writes `~/.config/home-sweet-home/jfrog-oidc.env` (and
 optionally `~/.npmrc` auth lines) inside the VM.
+
+---
+
+## Migrating old clones
+
+If you restored work repos from a backup that was cloned with the
+old `github-onlyfy:` SSH alias, point them at plain `github.com`:
+
+```
+,migrate-github-onlyfy-remotes ~/code            # dry-run
+,migrate-github-onlyfy-remotes --apply ~/code    # actually rewrite
+```
 
 ---
 
