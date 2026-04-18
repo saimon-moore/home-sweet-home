@@ -55,7 +55,6 @@ brew "atlassian/acli/acli"
 brew "confluentinc/tap/cli"
 brew "hashicorp/tap/terraform"
 brew "phrase-cli"
-brew "mas"
 brew "xwmx/taps/nb"
 
 cask "1password"
@@ -93,6 +92,3 @@ cask "teamviewer"
 cask "telegram"
 cask "the-unarchiver"
 cask "visual-studio-code"
-
-mas "Xcode", id: 497799835
-mas "Numbers", id: 409203825
