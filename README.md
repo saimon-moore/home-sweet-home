@@ -1,196 +1,160 @@
-# home-sweet-home
+# home-sweet-home (work)
 
-Dotfiles for my host plus an isolated Ubuntu VM for development.
+Dotfiles for my macOS work host plus an isolated Ubuntu LTS dev VM.
+The host is intentionally minimal: Homebrew, chezmoi, the `,*` helper
+scripts, a curated set of GUI casks, JFrog credential plumbing, and
+`nb` for notes. All development — editor, language runtimes, LSPs,
+git tooling — lives inside the VM.
 
+---
 
-## Quick install (macOS host)
-
-On a fresh Mac, one command bootstraps Homebrew, chezmoi, and this
-repo's dotfiles:
+## One-line install on a fresh Mac
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/saimon-moore/home-sweet-home/main/bootstrap/host/install.sh)
 ```
 
-The installer is idempotent, so it is safe to re-run.
+Idempotent — safe to re-run.
 
-When `chezmoi` prompts, answer:
+---
 
-- `Will you develop on this machine?` -> `no`
-- `Will you need opencode on this machine?` -> `no`
-- fill in `Git author name`, `Git author email`, `GitHub username`, and `Work username`
+## Prerequisites
 
-When it finishes, open a new terminal and run `,create-vm` to create the
-dev VM, then follow the VM setup below. The installer also prints these
-next steps at the end.
+Before running the installer:
 
+1. **macOS Sonoma or newer** on an Apple Silicon Mac. `install.sh`
+   refuses to run elsewhere.
+2. **Xcode Command Line Tools** — the Homebrew install in
+   `install.sh` will trigger the CLT installer if missing. Click
+   through it when prompted and re-run if needed.
+3. **Backed-up SSH keys** reachable from the new machine (iCloud,
+   external drive, password manager, etc.). After the installer
+   finishes you'll copy these into `~/.ssh/`:
+   - `id_ed25519_xing` (+ `.pub`) — Onlyfy/XING identity and signing
+     key. Used by both the `github-onlyfy` alias (for github.com/
+     saimon-moore) and the `github-xing` alias (for source.xing.com).
+4. **Work IT will push** the MDM-managed apps separately via
+   Company Portal / Self Service — Cortex XDR, FortiClient, Iru
+   Self Service, uniFLOW, authigo2, BeeCore, Phrase desktop. See
+   `ADAPTING.md` → *Manual installs*.
+5. **A few chezmoi prompt answers** ready:
+   - Git author name + email
+   - GitHub username (`saimon-moore`)
+   - Whether this machine will be used for `develop` (`no` for the
+     host, `yes` inside the VM later)
+   - Whether you want `opencode` installed
 
-## First-Time Setup
+---
 
-### Work
+## What the installer does
 
-#### Host (manual alternative)
+1. Installs Homebrew (non-interactive) if missing.
+2. Installs `chezmoi` via Homebrew.
+3. `chezmoi init --apply saimon-moore/home-sweet-home` which:
+   - Renders every templated dotfile into `$HOME`.
+   - Fires `run_once_after_host-brew-bundle.sh.tmpl` → runs
+     `brew bundle` against `bootstrap/host/Brewfile` (installs the
+     curated brew formulae and 35 GUI casks).
+   - Fires `run_once_after_nb-notebooks-bootstrap.sh.tmpl` → clones
+     the `xing` nb notebook from `git@github-onlyfy:saimon-moore/nb`
+     into `~/.nb/xing`.
+   - Drops `~/Desktop/home-sweet-home.md` (a daily-use quick
+     reference).
+4. Runs `,verify` so you see a colour-coded pass/fail summary before
+   the next-steps instructions print.
 
-If you prefer to do it by hand rather than use the one-liner above:
+The Homebrew bundle step can take a while on first run and will
+occasionally pause for macOS to ask permission for a cask install
+(accessibility, input monitoring, etc.). Approve and let it resume.
 
-```bash
-# Install Homebrew (https://brew.sh), then:
-brew install chezmoi
-chezmoi init --apply saimon-moore/home-sweet-home
-,create-vm
-```
+---
 
-Answer the chezmoi prompts as listed under Quick install above.
+## Post-install
 
-#### VM as `dev`
+1. **Open a new terminal.** Shell PATH changes and integrations load
+   on shell start, not mid-session.
+2. **Drop your SSH keys into `~/.ssh/`:**
+   ```bash
+   chmod 700 "$HOME/.ssh"
+   cp <backup>/id_ed25519_xing     "$HOME/.ssh/"
+   cp <backup>/id_ed25519_xing.pub "$HOME/.ssh/"
+   chmod 600 "$HOME/.ssh"/id_ed25519_xing
+   chmod 644 "$HOME/.ssh"/id_ed25519_xing.pub
+   ```
+   The nb bootstrap hook clones over the `github-onlyfy` alias, so
+   this key must be in place before `chezmoi apply` or re-apply it
+   afterwards with `,chezmoi-init`.
+   Confirm with `,verify`.
+3. **Create the dev VM:** `,create-vm`. This provisions lima with
+   the Ubuntu LTS template defined in `lima/dev-ubuntu.yaml`.
+4. **Open the VM:** `,dev`.
+5. **Bootstrap `dev` inside the VM** (one time):
+   ```bash
+   mkdir -p "$HOME/.ssh"
+   chmod 700 "$HOME/.ssh"
+   ssh-keygen -q -t ed25519 -N '' -C "dev@dev" -f "$HOME/.ssh/id_ed25519"
+   chezmoi init --apply saimon-moore/home-sweet-home
+   mise install
+   chezmoi apply
+   ```
+   Answer `develop=yes` and use the same identity as on the host.
+6. **Sync JFrog credentials into the VM** when you need private
+   artifact access — see the JFrog section below.
+7. **MDM / manual installs** from `ADAPTING.md` → *Manual installs*.
+   Most of these are delivered by IT; Paseo is the only one you
+   install by hand.
 
-```bash
-limactl shell --tty --reconnect --workdir /home/dev --shell /usr/bin/zsh dev
-# or
-,dev
-```
+---
 
-Run inside the VM as `dev`:
+## Verify
 
-```bash
-mkdir -p "$HOME/.ssh"
-chmod 700 "$HOME/.ssh"
-ssh-keygen -q -t ed25519 -N '' -C "dev@dev" -f "$HOME/.ssh/id_ed25519"
-chezmoi init --apply saimon-moore/home-sweet-home
-mise install
-chezmoi apply
-```
+`,verify` on the host checks:
 
-This also installs the terminal IDE support managed here for Neovim (LazyVim), Zellij, Lazygit, Yazi, and related editor tooling.
+- Homebrew, chezmoi, git installed
+- Spot-check of Brewfile CLIs (`eza`, `fzf`, `ripgrep`, `fd`,
+  `lazygit`, `lima`, `gh`, `jq`, `bat`, `nb`)
+- `chezmoi status` — no pending changes
+- Git aliases loaded (`git pam` et al.) + `commit.gpgsign = true`
+- `~/.ssh/config` references `id_ed25519_xing` and the key file is
+  present; `github-onlyfy` alias is defined
+- `~/.nb/xing` is a real git repo
+- lima dev VM exists
+- `~/Desktop/home-sweet-home.md` is in place
 
-When `chezmoi` prompts as `dev`, answer:
+Exits non-zero on any hard failure so you can wire it into scripts or
+CI.
 
-- `Will you develop on this machine?` -> `yes`
-- `Will you need opencode on this machine?` -> `yes` if you want OpenCode in the VM, otherwise `no`
-- fill in the same identity values as on the host
+---
 
-Open the VM as `dev` when you need a shell.
+## Daily use
 
-```bash
-,dev
-```
+See `~/Desktop/home-sweet-home.md` — that's where the real cheatsheet
+lives now. Short version:
 
-Use `,dev` instead of raw `limactl shell` commands.
+- `,dev` enters the dev VM shell (a zellij session).
+- `,cheatsheet` prints the full terminal-tool keybinding reference.
+- `,chezmoi-update` pulls this repo and applies.
+- `,verify` re-runs the health check.
 
-Existing VMs created before the login-shell fix may still have `/bin/bash` as `dev`'s login shell. Recreate the VM or run `sudo usermod -s /usr/bin/zsh dev` inside it once.
+Daily commands, VM networking, the terminal IDE stack, `nb` basics,
+and the JFrog sync flow are all covered on the Desktop README.
 
-Keep repos under `~/code` in the VM.
+---
 
-`chezmoi` can read this repo directly from GitHub because the repo root now contains `.chezmoiroot` pointing at `chezmoi/`.
+## JFrog credentials → VM
 
-Every machine also gets:
-
-- `,chezmoi-init` to run `chezmoi apply`
-- `,chezmoi-update` to run `chezmoi update`
-
-Use `saimon-moore/home-sweet-home` with `chezmoi init`. Username-only shorthand resolves to `saimon-moore/dotfiles`, which is not this repo.
-
-## OpenCode Browser Auth In The VM
-
-OpenCode browser auth currently redirects back to `localhost` on the machine that started `opencode`.
-
-When `opencode` runs in the VM, the final browser redirect therefore fails on the host. The working flow is:
-
-1. Run `/connect` inside `opencode` in the VM.
-2. Complete the browser login on the host.
-3. When the browser lands on the failing `http://localhost:...` callback URL, copy that full URL.
-4. Back in the VM, call it manually:
-
-```bash
-curl '<paste-the-final-localhost-url-here>'
-```
-
-That delivers the auth callback to the OpenCode process running inside the VM.
-
-## What you get
-
-* Managed dotfiles for your host machine
-* A virtual machine that is used to isolate all development from the host system
-* Managed dotfiles for the `dev` user in the development VM
-* Optional OpenCode setup in the development VM
-
-## Daily Use
-
-- Open the dev shell with `,dev`
-- Open a project tab from `zoxide` with `,zlayout [default|dev|dev-agentic]`
-- Open a `dev` project tab with `,zdev`
-- Open a `dev-agentic` project tab with `,zagent`
-- Re-apply the current machine config with `,chezmoi-init`
-- Open `,cheatsheet` for the terminal tool quick reference
-- Show the VM IP with `,vm-ip`
-- Open a VM-hosted service in the browser with `,vm-open 9000`
-- Create the VM from the host with `,create-vm`
-- Keep repos under `~/code` on the VM
-- Pull and apply host changes with `,chezmoi-update`
-- Pull and apply VM changes with `,chezmoi-update` as `dev`
-- Clone GitHub repos via SSH into `~/code/github/<owner>/<repo>` with `,ghclone owner/repository`
-- Use `,ghotspots`, `,gauthors`, `,gbugs`, `,gactivity`, `,gfire`, and `,gbranches` for quick git repo diagnostics
-- For OpenCode browser auth in the VM, finish login on the host and `curl` the final localhost callback URL from inside the VM
-
-## Access VM Servers From The Host
-
-The VM uses `vzNAT`, so there are two supported access patterns from the host.
-
-If the server binds to `127.0.0.1` or `localhost` inside the VM, Lima forwards guest localhost ports to host localhost.
-
-If the server binds to `0.0.0.0`, open it via the VM IP instead.
-
-Examples:
-
-```bash
-# Rails inside the VM
-bin/rails server -b 127.0.0.1 -p 3000
-
-# Open on the host
-http://localhost:3000
-```
-
-```bash
-# Another app inside the VM
-./server --host 127.0.0.1 --port 8080
-
-# Open on the host
-http://localhost:8080
-```
-
-```bash
-# App bound to all interfaces inside the VM
-./server --host 0.0.0.0 --port 9000
-
-# Get the VM IP from the host
-limactl shell --workdir /home/dev dev ip -4 addr show lima0
-
-# Open on the host
-http://<vm-ip>:9000
-```
-
-Notes:
-
-- Prefer binding app servers to `127.0.0.1` in the VM
-- Use the same port number on the host for localhost-forwarded services
-- Use the VM IP for services bound to `0.0.0.0`
-- Existing VMs need a one-time `vzNAT` network update and restart to pick this up
-- Host helpers: `,vm-ip` prints the VM IP and `,vm-open [PORT]` opens `http://<vm-ip>[:PORT]`
-
-## Sync JFrog Credentials To The VM
-
-JFrog credentials stay sourced from 1Password on the host and are copied explicitly into the VM when needed.
-
-The host shell already provides `,jfrog_oidc_env`, which exports `JFROG_OIDC_USER` and `JFROG_OIDC_TOKEN`.
-
-Sync credentials for a VM user with:
+JFrog credentials stay sourced from 1Password on the host and are
+copied explicitly into the VM when needed. The host shell provides
+`,jfrog_oidc_env`, which exports `JFROG_OIDC_USER` and
+`JFROG_OIDC_TOKEN`.
 
 ```bash
 ,jfrog_oidc_env
 ,sync-jfrog-to-vm --host your.jfrog.example.com
 ```
 
-If Ruby gems use a different host than the primary JFrog host, pass `--ruby-host` too.
+If Ruby gems use a different host than the primary JFrog host, pass
+`--ruby-host` too.
 
 To also wire npm up to a JFrog npm registry, pass `--npm-registry`:
 
@@ -200,21 +164,81 @@ To also wire npm up to a JFrog npm registry, pass `--npm-registry`:
   --npm-registry https://your.jfrog.example.com/artifactory/api/npm/npm-virtual/
 ```
 
-For a scoped registry (recommended when JFrog only hosts your own packages and public packages still come from npmjs), add `--npm-scope company`. The sync then writes `@company:registry=...` instead of a global `registry=...` line.
+For a scoped registry (recommended when JFrog only hosts your own
+packages and public packages still come from npmjs), add
+`--npm-scope company`. The sync then writes
+`@company:registry=...` instead of a global `registry=...` line.
 
 The sync writes two files inside the VM:
 
-- `~/.config/home-sweet-home/jfrog-oidc.env` — sourced automatically by the VM shell. Exposes `JFROG_OIDC_USER`, `JFROG_OIDC_TOKEN`, `JFROG_HOST`, `JFROG_REALM`, and a Bundler `BUNDLE_<host>` variable.
-- `~/.npmrc` — only touched when `--npm-registry` is passed. Auth lines go between `# BEGIN home-sweet-home jfrog npm auth` / `# END home-sweet-home jfrog npm auth` sentinels, so re-running the sync replaces the block idempotently and leaves the rest of the file alone. `.npmrc` is managed as `create_` in chezmoi (created once with `ignore-scripts=true`, never overwritten), so the auth lines persist across `chezmoi apply`.
+- `~/.config/home-sweet-home/jfrog-oidc.env` — sourced automatically
+  by the VM shell. Exposes `JFROG_OIDC_USER`, `JFROG_OIDC_TOKEN`,
+  `JFROG_HOST`, `JFROG_REALM`, and a Bundler `BUNDLE_<host>`
+  variable.
+- `~/.npmrc` — only touched when `--npm-registry` is passed. Auth
+  lines go between `# BEGIN home-sweet-home jfrog npm auth` /
+  `# END home-sweet-home jfrog npm auth` sentinels, so re-running
+  the sync replaces the block idempotently and leaves the rest of
+  the file alone. `.npmrc` is managed as `create_` in chezmoi
+  (created once with `ignore-scripts=true`, never overwritten), so
+  the auth lines persist across `chezmoi apply`.
 
-## Terminal IDE
+---
 
-`chezmoi` manages the Zellij, Lazygit, Yazi, and Scooter config from this repo directly. The editor is Neovim with the [LazyVim](https://www.lazyvim.org) starter.
+## Manual chezmoi init (without the one-liner)
 
-On development machines, `mise install` pulls Neovim (stable) plus the editor-side tools managed here, including `lazygit`, `zellij`, `yazi`, `scooter`, `delta`, `golangci-lint`, `prettier`, and `emmet-ls`.
+```bash
+# Install Homebrew (https://brew.sh) yourself, then:
+brew install chezmoi
+chezmoi init --apply saimon-moore/home-sweet-home
+```
 
-On first `chezmoi apply` on a development machine, the [LazyVim starter](https://github.com/LazyVim/starter) is cloned into `~/.config/nvim` (with its `.git` directory removed). Open `nvim` once afterwards to let `lazy.nvim` install plugins and treesitter parsers. Customize `~/.config/nvim` directly from there — it's yours.
+`chezmoi` can read this repo directly from GitHub because the repo
+root has `.chezmoiroot` pointing at `chezmoi/`.
 
-To put your customized nvim config under chezmoi management later, run `chezmoi add ~/.config/nvim` and commit.
+---
 
-Theme assets for Yazi and Scooter are managed directly in this repo.
+## OpenCode browser auth in the VM
+
+OpenCode's browser auth redirects back to `localhost` on the machine
+that started `opencode`. When it runs inside the VM, the final
+browser redirect therefore fails on the host. The working flow:
+
+1. Run `/connect` inside `opencode` in the VM.
+2. Complete the browser login on the host.
+3. When the browser lands on the failing `http://localhost:...`
+   callback URL, copy that full URL.
+4. Back in the VM: `curl '<paste-the-final-localhost-url-here>'`.
+
+That delivers the auth callback to the OpenCode process running
+inside the VM.
+
+---
+
+## Troubleshooting
+
+- **`,verify` reports failures** → it names what's missing. Usually
+  the fix is `chezmoi apply` or `brew bundle --file
+  ~/.local/share/chezmoi/bootstrap/host/Brewfile` in a fresh shell.
+- **`chezmoi status` non-empty** → `chezmoi diff` to inspect, then
+  `chezmoi apply`.
+- **VM won't start** → `limactl stop dev; limactl delete dev;
+  ,create-vm`. VMs from before the vzNAT change need this recreate.
+- **nb notebook clone failed** → the SSH key wasn't in place when
+  the hook ran. Fix the key file, then either re-run
+  `,chezmoi-init` or touch the script to re-hash it and
+  `chezmoi apply`.
+- **Cask install hung on permission prompt** → re-run `brew bundle`
+  after approving; casks are idempotent.
+- **`chezmoi init` with username-only shorthand resolves elsewhere**
+  → always use `saimon-moore/home-sweet-home` explicitly.
+
+---
+
+## Other references
+
+- `ADAPTING.md` — customization guide: every prompt, every gate,
+  manual-install catalog, opinionated choices at a glance.
+- `bootstrap/host/Brewfile` — the full host manifest.
+- `bootstrap/host/install.sh` — the one-line installer (you can read
+  it end-to-end in <100 lines).
