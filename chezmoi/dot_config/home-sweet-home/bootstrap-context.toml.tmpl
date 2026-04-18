@@ -1,6 +1,5 @@
 {{- $needsTaskwarrior := false -}}
 {{- if hasKey . "needs_taskwarrior" }}{{- $needsTaskwarrior = .needs_taskwarrior }}{{- end }}
 develop = {{ .develop }}
-needs_opencode = {{ .needs_opencode }}
 needs_taskwarrior = {{ $needsTaskwarrior }}
 work = {{ if ne .work_username "" }}true{{ else }}false{{ end }}
