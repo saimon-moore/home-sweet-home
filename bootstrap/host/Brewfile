@@ -42,7 +42,6 @@ brew "saml2aws"
 brew "telnet"
 brew "terragrunt"
 brew "tf-summarize"
-brew "tfenv", link: false
 brew "tfsec"
 brew "tig"
 brew "tree"
