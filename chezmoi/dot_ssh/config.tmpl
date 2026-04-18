@@ -8,4 +8,21 @@ Host source.xing.com
 	User git
 	IdentityFile ~/.ssh/id_ed25519
 	IdentitiesOnly yes
+{{- else }}
+Host ssh.github.com
+	ForwardAgent yes
+	IdentityFile ~/.ssh/id_ed25519_xing
+	IdentitiesOnly yes
+
+Host github-onlyfy
+	ForwardAgent yes
+	HostName github.com
+	IdentityFile ~/.ssh/id_ed25519_xing
+	IdentitiesOnly yes
+
+Host github-xing
+	ForwardAgent yes
+	HostName source.xing.com
+	IdentityFile ~/.ssh/id_ed25519_xing
+	IdentitiesOnly yes
 {{- end }}
