@@ -268,7 +268,7 @@ as `chezmoi/dot_nbrc`.
 The `chezmoi/.chezmoiscripts/run_once_after_nb-notebooks-bootstrap.sh.tmpl`
 hook runs on macOS hosts (`develop=false`) and, if `~/.nb/xing` is not
 already a git repo, clones `git@github.com:saimon-moore/nb.git` into
-it using the `id_ed25519_xing` key configured for github.com in
+it using the `id_ed25519` key configured for github.com in
 `dot_ssh/config.tmpl`.
 Re-runs are no-ops once the notebook is present.
 

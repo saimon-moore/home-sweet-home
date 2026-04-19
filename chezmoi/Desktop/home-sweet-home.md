@@ -74,7 +74,7 @@ nb sync             pull + push to GitHub
 
 This machine is wired to the **xing** notebook at
 `~/.nb/xing` → `git@github.com:saimon-moore/nb.git`. The chezmoi-
-managed `~/.ssh/config` routes github.com through `id_ed25519_xing`.
+managed `~/.ssh/config` routes github.com through `id_ed25519`.
 
 ---
 

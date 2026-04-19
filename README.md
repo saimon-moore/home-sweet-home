@@ -30,7 +30,7 @@ Before running the installer:
 3. **Backed-up SSH key** reachable from the new machine (iCloud,
    external drive, password manager, etc.). After the installer
    finishes you'll copy this into `~/.ssh/`:
-   - `id_ed25519_xing` (+ `.pub`) — Onlyfy/XING identity and signing
+   - `id_ed25519` (+ `.pub`) — Onlyfy/XING identity and signing
      key. Used directly by the chezmoi-managed `~/.ssh/config` for
      both `github.com` and `source.xing.com`.
 4. **Work IT will push** the MDM-managed apps separately via
@@ -76,10 +76,10 @@ occasionally pause for macOS to ask permission for a cask install
 2. **Drop your SSH keys into `~/.ssh/`:**
    ```bash
    chmod 700 "$HOME/.ssh"
-   cp <backup>/id_ed25519_xing     "$HOME/.ssh/"
-   cp <backup>/id_ed25519_xing.pub "$HOME/.ssh/"
-   chmod 600 "$HOME/.ssh"/id_ed25519_xing
-   chmod 644 "$HOME/.ssh"/id_ed25519_xing.pub
+   cp <backup>/id_ed25519     "$HOME/.ssh/"
+   cp <backup>/id_ed25519.pub "$HOME/.ssh/"
+   chmod 600 "$HOME/.ssh"/id_ed25519
+   chmod 644 "$HOME/.ssh"/id_ed25519.pub
    ```
    The nb bootstrap hook clones over `git@github.com:...` and the
    chezmoi-managed `~/.ssh/config` routes github.com through this
@@ -112,11 +112,11 @@ occasionally pause for macOS to ask permission for a cask install
 `,verify` on the host checks:
 
 - Homebrew, chezmoi, git installed
-- Spot-check of Brewfile CLIs (`eza`, `fzf`, `ripgrep`, `fd`,
+- Spot-check of Brewfile CLIs (`eza`, `fzf`, `rg` (from ripgrep), `fd`,
   `lazygit`, `lima`, `gh`, `jq`, `bat`, `nb`)
 - `chezmoi status` — no pending changes
 - Git aliases loaded (`git pam` et al.) + `commit.gpgsign = true`
-- `~/.ssh/config` references `id_ed25519_xing` and the key file is
+- `~/.ssh/config` references `id_ed25519` and the key file is
   present
 - `~/.nb/xing` is a real git repo
 - lima dev VM exists
@@ -196,7 +196,7 @@ commits:
   metadata openskills needs to fetch each skill.
 
 After every `chezmoi apply`, the
-`run_after_agent-skills-bootstrap.sh.tmpl` hook reconciles disk state
+`run_onchange_after_openskills-bootstrap.sh.tmpl` hook reconciles disk state
 against the manifest:
 
 1. reads the unique `source` values from the committed
@@ -261,7 +261,7 @@ The sync writes two files inside the VM:
 Earlier versions of this repo's SSH config defined a `github-onlyfy`
 alias that routed `git@github-onlyfy:...` URLs through the Onlyfy
 key. The current setup drops the alias and instead points
-`Host github.com` directly at `id_ed25519_xing`, since this machine
+`Host github.com` directly at `id_ed25519`, since this machine
 only ever needs that one key for github.com.
 
 If you restore work repos from a backup that was originally cloned

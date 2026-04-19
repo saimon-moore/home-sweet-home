@@ -3,9 +3,9 @@
 [user]
 	name = {{ .name | quote }}
 	email = {{ .email | quote }}
-{{- if and $host $work }}
-	signingkey = ~/.ssh/id_rsa.pub
-{{- else if not $host }}
+{{- if not $host }}
+	signingkey = ~/.ssh/id_ed25519.pub
+{{- else if $work }}
 	signingkey = ~/.ssh/id_ed25519.pub
 {{- end }}
 

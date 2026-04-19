@@ -6,7 +6,7 @@ set -uo pipefail
 
 # Work-fork expectations; edit these if the fork identity changes.
 readonly NB_NOTEBOOK="xing"
-readonly SSH_KEY_MARKER="id_ed25519_xing"
+readonly SSH_KEY_MARKER="id_ed25519"
 
 pass=0
 fail=0
@@ -34,7 +34,7 @@ for t in brew chezmoi git; do
 done
 
 section "Brewfile tools (spot-check)"
-for t in eza fzf ripgrep fd lazygit lima gh jq bat nb; do
+for t in eza fzf rg fd lazygit lima gh jq bat nb; do
 	if command -v "$t" >/dev/null 2>&1; then
 		ok "$t"
 	else
