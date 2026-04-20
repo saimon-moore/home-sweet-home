@@ -338,6 +338,13 @@ finishes auth.
   `chezmoi apply`.
 - **VM won't start** → `limactl stop dev; limactl delete dev;
   ,create-vm`. VMs from before the vzNAT change need this recreate.
+- **`git pull` / `git push` hangs inside the VM** → on some
+  host/VPN/Wi-Fi paths, PMTU discovery breaks for Lima's `lima0`
+  interface and SSH stalls at `expecting SSH2_MSG_KEX_ECDH_REPLY`.
+  Fresh VMs now install a boot-time fix that sets `lima0` to MTU
+  1280. Existing VMs can apply the same workaround immediately with
+  `sudo ip link set dev lima0 mtu 1280`, then either recreate the VM
+  with `,create-vm` or install the same change permanently.
 - **nb notebook clone failed** → the SSH key wasn't in place when
   the hook ran. Fix the key file, then either re-run
   `,chezmoi-init` or touch the script to re-hash it and

@@ -72,6 +72,9 @@ Defined in `lima/dev-ubuntu.yaml`:
 - **Mounts:** none (intentional — keeps host/VM cleanly separated)
 - **Containerd:** disabled (podman installed instead)
 - **Networking:** vzNAT; localhost-bound ports auto-forward to host; 0.0.0.0 services reached via `,vm-ip`
+- **MTU workaround:** provisioning installs a small systemd oneshot that
+  sets `lima0` to MTU 1280 at boot, which avoids SSH/Git hangs on
+  networks where PMTU discovery is broken through the guest NAT path
 
 `lima/dev-ubuntu-system.sh` provisions via `apt-get`: git, curl, zsh,
 zsh-autosuggestions, openssh-client, podman, podman-compose, uidmap,
@@ -93,6 +96,7 @@ provisioning script symlinks `/usr/local/bin/fd` → `/usr/bin/fdfind` and
 | Add host mounts         | `mounts:` list in `dev-ubuntu.yaml` (empty by default)         |
 | Different VM name       | Pass `--name` to `,create-vm`; update `,dev`, `,vm-ip`, `,vm-open`, `,sync-jfrog-to-vm` scripts if you want a different default |
 | Different default shell | `user.shell` in `dev-ubuntu.yaml` and the `chsh` step          |
+| Tune the VM MTU         | `LIMA_PRIMARY_IFACE` / `LIMA_PRIMARY_MTU` near the top of `lima/dev-ubuntu-system.sh` |
 
 Existing VMs predating the vzNAT change need a one-off network reset — see
 the README.
