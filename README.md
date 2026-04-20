@@ -187,8 +187,9 @@ AGENT_HARNESS=codex ,agent
 ### Skills (`openskills`)
 
 Agent skills live centrally in `~/.agent/skills/` and are managed by
-[openskills](https://github.com/numman-ali/openskills). This repo
-commits:
+[openskills](https://github.com/numman-ali/openskills). For Codex
+compatibility, chezmoi also keeps `~/.agents/skills` symlinked to the
+same directory. This repo commits:
 
 - `chezmoi/dot_agent/openskills-manifest.txt` — the list of skill
   names this machine should have.
@@ -203,7 +204,8 @@ against the manifest:
    `.openskills.json` files,
 2. runs `npx openskills install <source> --universal` for each,
 3. prunes any skill dir on disk whose name is not in the manifest,
-4. regenerates `~/.agent/AGENTS.md` via `npx openskills sync`.
+4. regenerates `~/.agent/AGENTS.md` via `npx openskills sync`,
+5. refreshes `~/.agents/skills` to point at `~/.agent/skills`.
 
 Run it manually with `chezmoi apply` or just `npx openskills install
 <source> --universal` for ad-hoc additions — then `chezmoi add

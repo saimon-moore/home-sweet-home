@@ -189,9 +189,9 @@ or drop the bootstrap script entirely and bring your own config.
   - `default.kdl` — single focused pane
   - `dev.kdl` — Neovim 70% / shell 30%
   - `dev-agentic.kdl` — Neovim 70% / opencode 30%
-- Uses locked-mode workflow (Alt+Shift combos); see `,cheatsheet` for the full
-  map. Floating helpers: `Alt+Shift+g` lazygit, `Alt+Shift+r` scooter,
-  `Alt+Shift+e` yazi.
+- Uses locked-mode workflow with Alt chords; see `,cheatsheet` for the full
+  map. Floating helpers: `Alt+g` lazygit, `Alt+r` scooter,
+  `Alt+e` yazi. `Alt+l` toggles Locked/Normal mode.
 
 Add your own layout by dropping a new `.kdl` next to the existing ones —
 `,zlayout <name> [zoxide-args]` will pick it up.
@@ -307,7 +307,9 @@ inside the VM to complete the OAuth callback.
 `~/.agent/skills/` is the single source of truth for skills available
 to every harness. [openskills](https://github.com/numman-ali/openskills)
 installs skills there (`--universal` mode) and writes an origin
-`.openskills.json` alongside each skill.
+`.openskills.json` alongside each skill. chezmoi also maintains
+`~/.agents/skills` as a compatibility symlink to the same directory so
+Codex sees the same skill set.
 
 This repo commits the shape, not the content:
 
@@ -317,12 +319,13 @@ This repo commits the shape, not the content:
   origin metadata. `create_` prefix so chezmoi drops it once and
   openskills can then refresh it without producing apply drift.
 
-The `run_after_agent-skills-bootstrap.sh.tmpl` hook reconciles disk
+The `run_onchange_after_openskills-bootstrap.sh.tmpl` hook reconciles disk
 state against the manifest on every apply: installs each unique
 source, prunes dirs whose names aren't in the manifest, and
-regenerates `~/.agent/AGENTS.md` via `openskills sync`. `npx` + `jq`
-are the runtime requirements — both come in via the Brewfile on the
-host and mise in the VM.
+regenerates `~/.agent/AGENTS.md` via `openskills sync`, then refreshes
+the `~/.agents/skills` symlink. `npx` + `jq` are the runtime
+requirements — both come in via the Brewfile on the host and mise in
+the VM.
 
 To add a skill:
 
